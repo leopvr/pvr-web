@@ -10,6 +10,8 @@
 <meta property="og:description" content="Industrial oscuro, texturas y catarsis. Buenos Aires, Argentina.">
 <meta property="og:image" content="img/og.jpg">
 <meta name="theme-color" content="#060606">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" sizes="32x32" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -102,7 +104,10 @@ p{margin:0}
 @media (max-width:600px){.hero .meta{align-items:flex-start;text-align:left}.hero .next{display:none}}
 
 /* manifiesto */
-.manifest{padding-block:clamp(96px,14vw,200px)}
+.manifest{position:relative;overflow:hidden;padding-block:clamp(96px,14vw,200px)}
+.manifest .mbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.45}
+.manifest .mfade{position:absolute;inset:0;background:linear-gradient(90deg,var(--bg) 0%,rgba(6,6,6,.6) 45%,rgba(6,6,6,.25) 100%),linear-gradient(180deg,var(--bg) 0%,rgba(6,6,6,0) 24%,rgba(6,6,6,0) 76%,var(--bg) 100%)}
+.manifest > p{position:relative;z-index:1}
 .manifest .mono{margin-bottom:36px}
 .manifest p{font-size:clamp(30px,4.6vw,68px);font-weight:400;letter-spacing:-.035em;line-height:1.08;max-width:22ch}
 .manifest p .w{color:var(--mute);transition:color .5s ease,text-shadow .5s ease}
@@ -176,6 +181,9 @@ p{margin:0}
 .sets .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,2.4vw,36px)}
 @media (max-width:760px){.sets .cards{grid-template-columns:minmax(0,1fr)}}
 .set{position:relative;display:block;aspect-ratio:16/10;overflow:hidden;background:#111}
+.set.feat{grid-column:1 / -1;aspect-ratio:21/9}
+.set.feat img{object-position:50% 30%}
+@media (max-width:760px){.set.feat{aspect-ratio:16/10}}
 .set img{width:100%;height:100%;object-fit:cover;filter:brightness(.62);transition:transform 1.2s var(--ease),filter .7s ease}
 .set:hover img{transform:scale(1.04);filter:brightness(.85)}
 .set .cap{position:absolute;inset:auto 0 0 0;padding:clamp(18px,2.4vw,32px);display:flex;justify-content:space-between;align-items:flex-end;gap:16px;background:linear-gradient(0deg,rgba(6,6,6,.85),rgba(6,6,6,0))}
@@ -271,6 +279,8 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 
 <div class="strobe" aria-hidden="true"></div>
 <section class="manifest in" aria-label="Manifiesto">
+  <video class="mbg lazyv" muted loop playsinline preload="none" poster="video/manifiesto.jpg" data-src="video/manifiesto.mp4" data-port="video/manifiesto-v.mp4" aria-hidden="true"></video>
+  <div class="mfade" aria-hidden="true"></div>
   <p class="mono">Manifiesto</p>
   <p id="manifesto">La música es un espejo. Lo que suena en la pista proyecta lo que llevamos adentro, lo que guardamos y lo que necesitamos soltar. PVR trabaja con ese reflejo: industrial, distorsión y ambientes para que la noche se vuelva una catarsis del lado oscuro.</p>
 </section>
@@ -367,6 +377,11 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 <section class="sets in" id="sets" aria-label="Sets en video">
   <div class="sec-head"><h2>Sets</h2><span class="mono">En vivo · YouTube</span></div>
   <div class="cards">
+    <a class="set feat" href="https://youtu.be/zJYam65M9F0" target="_blank" rel="noopener">
+      <img src="img/set-03.jpg" alt="PVR mezclando, de perfil" loading="lazy">
+      <div class="cap"><div><span class="mono">DJ set · Radio</span><br><b>Black Room Radio</b></div>
+        <svg class="play" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="32" cy="32" r="30"></circle><path d="M27 22l15 10-15 10z"></path></svg></div>
+    </a>
     <a class="set" href="https://www.youtube.com/watch?v=9dhB1MIS1ok&amp;t=160s" target="_blank" rel="noopener">
       <img src="img/set-01.jpg" alt="PVR en cabina frente al público" loading="lazy">
       <div class="cap"><div><span class="mono">Set en vivo</span><br><b>Set 01</b></div>
@@ -541,7 +556,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     var vio = new IntersectionObserver(function(es){
       es.forEach(function(e){
         var v = e.target;
-        if (e.isIntersecting){ if (!v.getAttribute('src') && v.dataset.src){ v.src = v.dataset.src; } var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+        if (e.isIntersecting){ if (!v.getAttribute('src') && v.dataset.src){ v.src = (v.dataset.port && innerHeight > innerWidth) ? v.dataset.port : v.dataset.src; } var p = v.play(); if (p && p.catch) p.catch(function(){}); }
         else { v.pause(); }
       });
     }, {rootMargin: '200px 0px'});
