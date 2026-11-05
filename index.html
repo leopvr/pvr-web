@@ -154,6 +154,9 @@ p{margin:0}
 .rows .r:hover::after{transform:scaleX(1)}
 .rows .r .v{font-size:clamp(24px,2.6vw,38px);font-weight:300;letter-spacing:-.02em;line-height:1.2;min-width:0}
 .rows .r .v b{font-weight:600}
+.rows .r.rave{align-items:center;border:1px solid rgba(239,238,234,.55);background:var(--scrim);padding:26px clamp(18px,2.4vw,32px);margin-block:10px}
+.rows .r.rave .v b{display:block;font-size:clamp(40px,5vw,72px);font-weight:800;letter-spacing:-.045em;line-height:.9}
+.rows .r.rave .v small{display:block;margin-top:10px;font-size:clamp(17px,1.5vw,21px);color:#d9d8d4}
 @media (max-width:640px){.rows .r{grid-template-columns:minmax(0,1fr);gap:10px}}
 
 /* música */
@@ -328,13 +331,12 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     <div class="fade"></div>
     <div class="head in">
       <h2>6 años<br>en cabina.</h2>
-      <div class="next"><span class="mono">Próxima fecha</span><b>RAVE 3000</b><span style="font-weight:300;color:#d9d8d4">Festival masivo · Fin de año 2026</span></div>
     </div>
   </div>
   <div class="rows in">
     <div class="r"><span class="mono">Residencia</span><span class="v"><b>BeTechno</b>, la productora que lo vio nacer</span></div>
     <div class="r"><span class="mono">Fiestas y clubes</span><span class="v">BeTechno · Tekgen · Tekna 303 · Heiss</span></div>
-    <div class="r"><span class="mono">Compartió cabina</span><span class="v">Rebekaos · Alexunder · HRDDMAT · KUCKI</span></div>
+    <div class="r rave"><span class="mono">Próxima fecha</span><span class="v"><b>RAVE 3000</b><small>Festival masivo · Fin de año 2026</small></span></div>
     <div class="r"><span class="mono">Sellos</span><span class="v">COUP · Expel Your Demons · Jahanam · VAST Perception · Paranoid · Introspicere</span></div>
   </div>
 </section>
