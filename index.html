@@ -74,6 +74,16 @@ p{margin:0}
 .hero{position:relative;height:min(94svh,980px);min-height:600px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
 .hero .ph{position:absolute;inset:-6% 0 -6% 0;will-change:transform}
 .hero .ph img,.hero .ph video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:38% 45%}
+.hero video.hv{object-position:50% 50%;opacity:0;transition:opacity 1.6s ease}
+.hero video.hv.on{opacity:1}
+.hero .flash{position:absolute;inset:0;background:var(--glow);opacity:0;mix-blend-mode:overlay;pointer-events:none;animation:flash 7.3s steps(1) infinite}
+@keyframes flash{0%,87%{opacity:0}88%{opacity:.38}89%{opacity:0}90.5%{opacity:.26}91.5%,100%{opacity:0}}
+.moments{margin-top:clamp(56px,7vw,110px)}
+.moments h3{font-size:clamp(44px,6vw,96px)}
+.mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1.6vw,24px);align-items:start}
+.mgrid video{width:100%;max-width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#111}
+.mgrid video:nth-child(even){margin-top:12%}
+@media (max-width:760px){.mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .hero .slice{animation:g1 6.3s steps(1) infinite}
 .hero .slice.b{animation-name:g2;animation-duration:8.9s}
 .hero .slice.c{animation-name:g3;animation-duration:11.7s}
@@ -126,7 +136,7 @@ p{margin:0}
 
 /* trayectoria */
 .career .stage{position:relative;height:clamp(520px,56vw,820px);overflow:hidden}
-.career .stage img{position:absolute;inset:-8% 0;width:100%;height:116%;object-fit:cover;object-position:50% 30%;will-change:transform}
+.career .stage img,.career .stage video{position:absolute;inset:-8% 0;width:100%;height:116%;object-fit:cover;object-position:50% 30%;will-change:transform}
 .career .stage .fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,6,.8) 0%,rgba(6,6,6,.08) 34%,rgba(6,6,6,.15) 62%,var(--bg) 100%)}
 .career .stage .head{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding-block:clamp(48px,6vw,96px) clamp(28px,4vw,56px)}
 .career h2{font-size:clamp(72px,11vw,180px)}
@@ -214,7 +224,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 
 @media (prefers-reduced-motion:reduce){
   #intro{display:none}
-  .hero .slice,.marquee .track{animation:none}
+  .hero .slice,.marquee .track,.hero .flash{animation:none}
   .hero .slice{display:none}
   .strobe.lit::after,.rig.draw .s,.rel:hover .cv::after{animation:none}
   html{scroll-behavior:auto}
@@ -244,10 +254,10 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     <img class="slice" src="img/hero.jpg" alt="" aria-hidden="true">
     <img class="slice b" src="img/hero.jpg" alt="" aria-hidden="true">
     <img class="slice c" src="img/hero.jpg" alt="" aria-hidden="true">
-    <!-- VIDEO DE PORTADA: cuando lo tengas, poné el archivo en /video y descomentá:
-    <video src="video/hero.mp4" poster="img/hero.jpg" autoplay muted loop playsinline></video> -->
+    <video class="hv" id="heroVideo" muted loop playsinline preload="none" data-land="video/hero.mp4" data-port="video/hero-v.mp4" aria-hidden="true"></video>
   </div>
   <div class="fade"></div>
+  <div class="flash" aria-hidden="true"></div>
   <a class="next" href="#trayectoria"><span class="mono">Próxima fecha</span><b>RAVE 3000</b><span class="mono" style="letter-spacing:.14em">Fin de año 2026</span></a>
   <div class="body in">
     <h1>PVR</h1>
@@ -303,7 +313,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 <div class="strobe" aria-hidden="true"></div>
 <section class="career" id="trayectoria">
   <div class="stage">
-    <img src="img/trayectoria.jpg" alt="PVR tocando de espaldas frente a la pista llena" loading="lazy" data-speed=".1">
+    <video class="lazyv" muted loop playsinline preload="none" poster="video/escenario.jpg" data-src="video/escenario.mp4" data-speed=".1" aria-label="PVR tocando con su nombre en la pantalla frente a la pista"></video>
     <div class="fade"></div>
     <div class="head in">
       <h2>6 años<br>en cabina.</h2>
@@ -368,6 +378,15 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
         <svg class="play" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="32" cy="32" r="30"></circle><path d="M27 22l15 10-15 10z"></path></svg></div>
     </a>
   </div>
+  <div class="moments">
+    <div class="sec-head"><h3>En la pista</h3><span class="mono">Registros de cabina</span></div>
+    <div class="mgrid">
+      <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-1.jpg" data-src="video/momento-1.mp4" aria-label="PVR mezclando de perfil"></video>
+      <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-2.jpg" data-src="video/momento-2.mp4" aria-label="La pista llena bajo las luces"></video>
+      <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-3.jpg" data-src="video/momento-3.mp4" aria-label="Haces de luz sobre el público"></video>
+      <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-4.jpg" data-src="video/momento-4.mp4" aria-label="PVR en los CDJ"></video>
+    </div>
+  </div>
 </section>
 
 <div class="strobe" aria-hidden="true"></div>
@@ -382,7 +401,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 
 <div class="strobe" aria-hidden="true"></div>
 <section class="rider" id="rider">
-  <img class="bg" src="img/rider.jpg" alt="" aria-hidden="true" loading="lazy">
+  <video class="bg lazyv" muted loop playsinline preload="none" poster="video/rider.jpg" data-src="video/rider.mp4" aria-hidden="true"></video>
   <div class="bgfade"></div>
   <div class="wrap in">
     <div class="sec-head" style="margin-bottom:0"><h2>Rider técnico</h2><span class="mono">Setup de cabina</span></div>
@@ -512,6 +531,22 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
   function onScroll(){ if (!ticking){ ticking = true; requestAnimationFrame(frame); } }
   if (!reduce){ addEventListener('scroll', onScroll, {passive:true}); addEventListener('resize', onScroll); frame(); }
   else { ws.forEach(function(w){ w.classList.add('on'); }); }
+
+  /* videos: portada según orientación, el resto se carga y reproduce solo cuando está en pantalla */
+  if (!reduce){
+    var hv = document.getElementById('heroVideo');
+    hv.src = (innerHeight > innerWidth) ? hv.dataset.port : hv.dataset.land;
+    hv.addEventListener('playing', function(){ hv.classList.add('on'); });
+    var hp = hv.play(); if (hp && hp.catch) hp.catch(function(){});
+    var vio = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var v = e.target;
+        if (e.isIntersecting){ if (!v.getAttribute('src') && v.dataset.src){ v.src = v.dataset.src; } var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+        else { v.pause(); }
+      });
+    }, {rootMargin: '200px 0px'});
+    document.querySelectorAll('.lazyv').forEach(function(v){ vio.observe(v); });
+  }
 
   /* copiar mails */
   document.querySelectorAll('.copy').forEach(function(b){
