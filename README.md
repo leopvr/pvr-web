@@ -1,6 +1,6 @@
 # PVR — web
 
-Sitio estático de PVR (Leonardo Peñalver), DJ y productor. Se publica en Cloudflare Pages desde la rama `main`.
+Sitio estático de PVR (Leonardo Peñalver), DJ y productor. Publicado en https://pvrstudio.com (Cloudflare, rama `main`).
 
 ## Estructura
 - `index.html` — toda la página (estilos y scripts incluidos).
