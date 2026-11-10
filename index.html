@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PVR</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="PVR — DJ y productor de Buenos Aires. Industrial oscuro, texturas y catarsis. Residente BeTechno.">
 <meta property="og:title" content="PVR — DJ / Productor">
 <meta property="og:description" content="Industrial oscuro, texturas y catarsis. Buenos Aires, Argentina.">
@@ -82,7 +81,7 @@ p{margin:0}
 .hero video.hv.on{opacity:1}
 .hero .flash{position:absolute;inset:0;background:var(--glow);opacity:0;mix-blend-mode:overlay;pointer-events:none;animation:flash 7.3s steps(1) infinite}
 @keyframes flash{0%,87%{opacity:0}88%{opacity:.38}89%{opacity:0}90.5%{opacity:.26}91.5%,100%{opacity:0}}
-.moments{margin-top:clamp(56px,7vw,110px)}
+.moments{padding-block:0 clamp(72px,9vw,140px)}
 .moments h3{font-size:clamp(44px,6vw,96px)}
 .mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1.6vw,24px);align-items:start}
 .mgrid video{width:100%;max-width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#111}
@@ -128,10 +127,13 @@ p{margin:0}
 .sound .stage{position:relative;height:clamp(520px,62vw,880px);overflow:hidden}
 .sound .stage img{position:absolute;inset:-8% 0;width:100%;height:116%;object-fit:cover;will-change:transform}
 .sound .stage .fade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(6,6,6,0) 20%,rgba(6,6,6,0) 70%,var(--bg) 100%)}
-.sound .words{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;mix-blend-mode:difference;color:#fff;white-space:nowrap}
-.sound .words span{display:block;font-size:clamp(52px,15vw,236px);letter-spacing:-.065em;line-height:.84;will-change:transform}
-.sound .words span:nth-child(2){font-weight:300}
-.sound .words span:nth-child(1),.sound .words span:nth-child(3){font-weight:800}
+.sound .runs{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;mix-blend-mode:difference;color:#fff}
+.sound .run{display:flex;width:max-content;animation:run 30s linear infinite}
+.sound .run:nth-child(2){animation-direction:reverse;animation-duration:38s}
+.sound .run:nth-child(3){animation-duration:34s}
+.sound .run span{font-size:clamp(76px,13vw,210px);font-weight:800;letter-spacing:-.065em;line-height:.86;padding-right:.35em;white-space:nowrap}
+.sound .run:nth-child(2) span{font-weight:300}
+@keyframes run{to{transform:translateX(-50%)}}
 .marquee{overflow:hidden;border-block:1px solid var(--line);padding-block:18px}
 .marquee .track{display:flex;width:max-content;animation:mq 38s linear infinite}
 .marquee .track span{font-family:var(--mono);font-size:15px;letter-spacing:.24em;text-transform:uppercase;padding-inline:28px;color:var(--ink);white-space:nowrap}
@@ -203,7 +205,7 @@ p{margin:0}
 .teach .num span{font-size:clamp(24px,2.4vw,36px);font-weight:300;line-height:1.1;letter-spacing:-.015em;padding-bottom:10px}
 .teach .txt{display:flex;flex-direction:column;gap:28px;min-width:0}
 .teach .img{aspect-ratio:4/5;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 30%);mask-image:linear-gradient(90deg,transparent,#000 30%)}
-.teach .img img{width:100%;height:100%;object-fit:cover;object-position:40% 30%}
+.teach .img img{width:100%;height:100%;object-fit:cover;object-position:50% 35%}
 @media (max-width:860px){.teach{grid-template-columns:minmax(0,1fr)}.teach .img{max-height:70svh;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent);mask-image:linear-gradient(180deg,#000 70%,transparent)}}
 
 /* rider */
@@ -238,7 +240,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 
 @media (prefers-reduced-motion:reduce){
   #intro{display:none}
-  .hero .slice,.marquee .track,.hero .flash{animation:none}
+  .hero .slice,.marquee .track,.hero .flash,.sound .run{animation:none}
   .hero .slice{display:none}
   .strobe.lit::after,.rig.draw .s,.rel:hover .cv::after{animation:none}
   html{scroll-behavior:auto}
@@ -303,15 +305,25 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
   <div class="img"><img src="img/sobre.jpg" alt="PVR contra una pared de concreto, en doble exposición" loading="lazy" data-speed="-.06"></div>
 </section>
 
+<section class="moments in" id="en-la-pista" aria-label="En la pista">
+  <div class="sec-head"><h3>En la pista</h3><span class="mono">Registros de cabina</span></div>
+  <div class="mgrid">
+    <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-1.jpg" data-src="video/momento-1.mp4" aria-label="PVR mezclando de perfil"></video>
+    <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-2.jpg" data-src="video/momento-2.mp4" aria-label="La pista llena bajo las luces"></video>
+    <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-3.jpg" data-src="video/momento-3.mp4" aria-label="Haces de luz sobre el público"></video>
+    <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-4.jpg" data-src="video/momento-4.mp4" aria-label="PVR en los CDJ"></video>
+  </div>
+</section>
+
 <div class="strobe" aria-hidden="true"></div>
 <section class="sound" id="sonido">
   <div class="stage">
     <img src="img/sonido.jpg" alt="Collage en blanco y negro: PVR bajo estructuras de concreto" loading="lazy" data-speed=".1">
     <div class="fade"></div>
-    <div class="words in" aria-label="Intenso, texturas, catarsis">
-      <span data-drift="-1">INTENSO</span>
-      <span data-drift="1">TEXTURAS</span>
-      <span data-drift="-1">CATARSIS</span>
+    <div class="runs" aria-label="Intenso, texturas, catarsis">
+      <div class="run" aria-hidden="true"><span>INTENSO</span><span>CATARSIS</span><span>INTENSO</span><span>CATARSIS</span><span>INTENSO</span><span>CATARSIS</span><span>INTENSO</span><span>CATARSIS</span></div>
+      <div class="run" aria-hidden="true"><span>TEXTURAS</span><span>DISTORSIÓN</span><span>TEXTURAS</span><span>DISTORSIÓN</span><span>TEXTURAS</span><span>DISTORSIÓN</span><span>TEXTURAS</span><span>DISTORSIÓN</span></div>
+      <div class="run" aria-hidden="true"><span>INDUSTRIAL</span><span>AMBIENTES</span><span>INDUSTRIAL</span><span>AMBIENTES</span><span>INDUSTRIAL</span><span>AMBIENTES</span><span>INDUSTRIAL</span><span>AMBIENTES</span></div>
     </div>
   </div>
   <div class="marquee" aria-hidden="true">
@@ -383,7 +395,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
   <div class="sec-head"><h2>Sets</h2><span class="mono">En vivo · YouTube</span></div>
   <div class="cards">
     <a class="set feat" href="https://youtu.be/zJYam65M9F0" target="_blank" rel="noopener">
-      <img src="img/set-03.jpg" alt="PVR en cabina frente a la pista llena" loading="lazy">
+      <img src="img/set-03.jpg" alt="PVR en cabina con la cara iluminada entre los haces" loading="lazy">
       <div class="cap"><div><span class="mono">DJ set · Radio</span><br><b>Black Room Radio</b></div>
         <svg class="play" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="32" cy="32" r="30"></circle><path d="M27 22l15 10-15 10z"></path></svg></div>
     </a>
@@ -398,25 +410,16 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
         <svg class="play" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="32" cy="32" r="30"></circle><path d="M27 22l15 10-15 10z"></path></svg></div>
     </a>
   </div>
-  <div class="moments">
-    <div class="sec-head"><h3>En la pista</h3><span class="mono">Registros de cabina</span></div>
-    <div class="mgrid">
-      <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-1.jpg" data-src="video/momento-1.mp4" aria-label="PVR mezclando de perfil"></video>
-      <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-2.jpg" data-src="video/momento-2.mp4" aria-label="La pista llena bajo las luces"></video>
-      <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-3.jpg" data-src="video/momento-3.mp4" aria-label="Haces de luz sobre el público"></video>
-      <video class="lazyv" muted loop playsinline preload="none" poster="video/momento-4.jpg" data-src="video/momento-4.mp4" aria-label="PVR en los CDJ"></video>
-    </div>
-  </div>
 </section>
 
 <div class="strobe" aria-hidden="true"></div>
 <section class="teach in" id="docencia">
   <div class="txt">
     <p class="mono">Producción y docencia</p>
-    <div class="num"><b>4</b><span>años como profesor<br>y director de producción<br>musical en Tekgen</span></div>
-    <p class="lead">Hace cuatro años PVR es profesor y director de producción musical en la academia de Tekgen. Enseñar le dio una mirada técnica y analítica del sonido que se nota en cabina: cada textura y cada distorsión están ubicadas con intención.</p>
+    <div class="num"><b>4</b><span>años como profesor<br>de producción y mezcla</span></div>
+    <p class="lead">Profesor de producción y mezcla desde hace cuatro años y, actualmente, director del área de producción musical de Tekgen. Enseñar le dio una mirada técnica y analítica del sonido que se nota en cabina: cada textura y cada distorsión están ubicadas con intención.</p>
   </div>
-  <div class="img"><img src="img/docencia.jpg" alt="PVR de perfil mirando hacia abajo" loading="lazy"></div>
+  <div class="img"><img src="img/docencia.jpg" alt="PVR con los brazos cruzados mirando a cámara" loading="lazy"></div>
 </section>
 
 <div class="strobe" aria-hidden="true"></div>
@@ -441,7 +444,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     <div class="r"><span class="mono">Directo</span><span class="v"><a href="mailto:contact.leopvr@gmail.com">contact.leopvr@gmail.com</a><button class="copy" data-copy="contact.leopvr@gmail.com">Copiar</button></span></div>
     <div class="r"><span class="mono">BeTechno</span><span class="v"><a href="mailto:betechnocommunity@gmail.com">betechnocommunity@gmail.com</a><button class="copy" data-copy="betechnocommunity@gmail.com">Copiar</button></span></div>
     <div class="r"><span class="mono">Redes</span><span class="v"><a href="https://www.instagram.com/pvr__________" target="_blank" rel="noopener">Instagram ↗</a><a href="https://soundcloud.com/pvr_trax" target="_blank" rel="noopener">SoundCloud ↗</a><a href="https://open.spotify.com/artist/4VE9PU7va4gBisff4hAZGF" target="_blank" rel="noopener">Spotify ↗</a><a href="https://www.youtube.com/@pvr_tracks" target="_blank" rel="noopener">YouTube ↗</a></span></div>
-    <div class="r"><span class="mono">Prensa</span><span class="v"><a href="https://drive.google.com/drive/u/4/folders/1McOlb39oepg8M8IJdTcWV4rKYDw8wyVy" target="_blank" rel="noopener">Fotos de prensa ↗</a></span></div>
+    <div class="r"><span class="mono">Prensa</span><span class="v"><a href="https://drive.google.com/drive/u/4/folders/1McOlb39oepg8M8IJdTcWV4rKYDw8wyVy" target="_blank" rel="noopener">PVR Presskit ↗</a></span></div>
   </div>
   <footer class="in mono"><span>PVR · Leonardo Peñalver</span><span>Buenos Aires · 2026</span></footer>
 </section>
@@ -541,6 +544,5 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
   });
 })();
 </script>
-
 </body>
 </html>

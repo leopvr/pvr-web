@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PVR Negativo</title>
+<meta name="description" content="PVR — DJ y productor de Buenos Aires. Industrial oscuro, texturas y catarsis. Mezcla y mastering.">
+<meta name="theme-color" content="#060606">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: la página como una consola. Un riel fijo de pistas a la izquierda, una perilla de DISTORSIÓN que rompe todo y un interruptor que pasa la página a NEGATIVO. */
+:root{
+  color-scheme:dark;
+  --bg:#060606; --ink:#efeeea; --mute:#9d9c98; --line:rgba(239,238,234,.2); --glow:#ffffff; --scrim:rgba(6,6,6,.74);
+  --display:'Inter Tight','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --gx:max(clamp(16px,4.5vw,64px), env(safe-area-inset-left,0px));
+  --gxr:max(clamp(16px,4.5vw,64px), env(safe-area-inset-right,0px));
+  --ease:cubic-bezier(.19,1,.22,1);
+  --d:.25; /* distorsión 0–1 */
+  --rail:0px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--display);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,label:focus-within{outline:1px solid var(--glow);outline-offset:3px}
+img,video{display:block;max-width:100%}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.055em;line-height:.86;text-wrap:balance}
+p{margin:0}
+.in{padding-left:var(--gx);padding-right:var(--gxr)}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+.lead{font-size:clamp(18px,1.45vw,21px);font-weight:300;line-height:1.55;color:#d9d8d4;max-width:60ch}
+main{margin-left:var(--rail);transition:filter .5s ease}
+html.neg main{filter:invert(1)}
+html.neg main .keep{filter:invert(1)}
+main img,main video{filter:contrast(calc(1 + var(--d) * .45))}
+html.neg main .keep img{filter:none}
+
+/* capas fijas */
+#grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70;mix-blend-mode:overlay;opacity:calc(.22 + var(--d) * .5)}
+#scan{position:fixed;inset:0;pointer-events:none;z-index:69;background:repeating-linear-gradient(180deg,rgba(255,255,255,.07) 0 1px,transparent 1px 4px);opacity:calc(var(--d) * .7)}
+#tear{position:fixed;left:0;right:0;height:calc(var(--d) * 46px);top:30%;pointer-events:none;z-index:68;backdrop-filter:invert(1);-webkit-backdrop-filter:invert(1);opacity:0}
+#tear.go{animation:tear .28s steps(2) 1}
+@keyframes tear{0%{opacity:1;transform:translateX(calc(var(--d) * 40px))}50%{opacity:1;transform:translateX(calc(var(--d) * -30px))}100%{opacity:0}}
+
+/* riel de pistas (compu) */
+.rail{position:fixed;left:0;top:0;bottom:0;width:208px;z-index:50;display:none;flex-direction:column;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 26px) 0 calc(env(safe-area-inset-bottom,0px) + 22px) max(22px,env(safe-area-inset-left,0px));border-right:1px solid var(--line);background:var(--bg)}
+.rail .brand{font-weight:800;font-size:34px;letter-spacing:-.06em;line-height:1}
+.rail nav{display:flex;flex-direction:column;gap:2px}
+.rail nav a{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);padding:7px 0;transition:color .3s}
+.rail nav a i{display:block;width:14px;height:1px;background:currentColor;transition:width .5s var(--ease),box-shadow .3s}
+.rail nav a:hover{color:var(--ink)}
+.rail nav a.on{color:var(--ink)}
+.rail nav a.on i{width:44px;background:var(--glow);box-shadow:0 0 12px 2px rgba(255,255,255,.55)}
+.ctl{display:flex;flex-direction:column;gap:14px;padding-right:22px}
+.ctl label{display:flex;flex-direction:column;gap:8px}
+.ctl input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:none;margin:0;cursor:ew-resize}
+.ctl input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--ink)}
+.ctl input[type=range]::-moz-range-track{height:1px;background:var(--ink)}
+.ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:20px;background:var(--ink);margin-top:-10px;border:0;border-radius:0}
+.ctl input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--ink);border:0;border-radius:0}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px;background:none;border:1px solid var(--line);color:var(--ink);padding:10px 12px;min-height:44px;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+.sw b{display:block;width:26px;height:12px;border:1px solid var(--ink);position:relative}
+.sw b::after{content:"";position:absolute;top:1px;bottom:1px;left:1px;width:10px;background:var(--ink);transition:transform .3s var(--ease)}
+.sw[aria-pressed=true] b::after{transform:translateX(12px)}
+.meter{display:flex;align-items:flex-end;gap:3px;height:26px}
+.meter span{display:block;width:5px;background:var(--ink);height:20%;transform-origin:bottom}
+@media (min-width:1100px){:root{--rail:208px}.rail{display:flex}.top{display:none !important}}
+
+/* barra superior (celular) */
+.top{position:fixed;top:0;left:0;right:0;z-index:50;padding-top:calc(env(safe-area-inset-top,0px) + 16px);padding-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;mix-blend-mode:difference;color:#fff}
+.top .brand{font-weight:800;font-size:22px;letter-spacing:-.04em}
+.pillbtn{background:none;border:1px solid currentColor;color:inherit;border-radius:75px;padding:10px 18px;font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;min-height:44px}
+#sheet{position:fixed;inset:0;z-index:55;background:var(--bg);padding-top:calc(env(safe-area-inset-top,0px) + 88px);padding-bottom:24px;display:flex;flex-direction:column;gap:4px;overflow:auto}
+#sheet[hidden]{display:none}
+#sheet a{font-size:clamp(34px,10vw,56px);font-weight:800;letter-spacing:-.05em;line-height:1.08}
+#sheet .ctl{margin-top:22px;padding-right:0;max-width:320px}
+
+/* separador */
+.strobe{position:relative;height:1px;background:var(--line)}
+.strobe::after{content:"";position:absolute;inset:0;background:var(--glow);transform:scaleX(0);transform-origin:left;box-shadow:0 0 22px 3px rgba(255,255,255,.55);opacity:0}
+.strobe.lit::after{animation:sweep 1.4s var(--ease) forwards}
+@keyframes sweep{0%{transform:scaleX(0);opacity:1}55%{transform:scaleX(1);opacity:1}62%{opacity:.15}68%{opacity:1}100%{transform:scaleX(1);opacity:0}}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:clamp(30px,4vw,60px)}
+.sec-head h2{font-size:clamp(52px,7.6vw,128px)}
+.pad{padding-block:clamp(72px,8.5vw,130px)}
+
+/* hero: PVR en negativo sobre el video */
+.hero{position:relative;height:min(96svh,1000px);min-height:600px;overflow:hidden}
+.hero .ph{position:absolute;inset:0}
+.hero .ph img,.hero .ph video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero video{opacity:0;transition:opacity 1.6s ease}
+.hero video.on{opacity:1}
+.hero .fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,6,.6) 0%,rgba(6,6,6,0) 24%,rgba(6,6,6,0) 62%,var(--bg) 100%)}
+.word{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;mix-blend-mode:difference;color:#fff;pointer-events:none}
+.word span{font-size:clamp(150px,calc((100vw - var(--rail)) * .44),640px);font-weight:800;letter-spacing:-.075em;line-height:.74;margin-left:-.075em}
+.word.s1{clip-path:inset(44% 0 52% 0);transform:translateX(calc(var(--d) * 120px))}
+.word.s2{clip-path:inset(60% 0 36% 0);transform:translateX(calc(var(--d) * -90px))}
+.word.s3{clip-path:inset(28% 0 69% 0);transform:translateX(calc(var(--d) * 60px))}
+.hero .foot{position:absolute;left:0;right:0;bottom:0;padding-bottom:clamp(22px,3vw,40px);display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.hero .foot p{font-size:clamp(20px,2vw,30px);font-weight:300;letter-spacing:-.02em;line-height:1.1}
+.hero .next{display:flex;flex-direction:column;gap:4px;border:1px solid rgba(255,255,255,.5);padding:12px 16px;background:var(--scrim)}
+.hero .next b{font-size:22px;font-weight:800;letter-spacing:-.03em}
+
+/* manifiesto */
+.manifest{position:relative;overflow:hidden}
+.manifest .mbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.4}
+.manifest .mfade{position:absolute;inset:0;background:linear-gradient(90deg,var(--bg) 0%,rgba(6,6,6,.6) 50%,rgba(6,6,6,.25) 100%),linear-gradient(180deg,var(--bg),rgba(6,6,6,0) 24%,rgba(6,6,6,0) 76%,var(--bg))}
+.manifest > p{position:relative}
+.manifest .big{font-size:clamp(28px,4.2vw,62px);letter-spacing:-.035em;line-height:1.08;max-width:22ch;margin-top:30px}
+.manifest .w{color:var(--mute);transition:color .5s ease}
+.manifest .w.on{color:var(--ink);text-shadow:0 0 18px rgba(255,255,255,.18)}
+
+/* sobre */
+.about{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(28px,4.5vw,72px);align-items:center}
+.about .txt{display:flex;flex-direction:column;gap:24px;min-width:0}
+.about h2{font-size:clamp(40px,4.8vw,78px);font-weight:600}
+.about .img{aspect-ratio:11/15;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,transparent,#000 12%,#000 84%,transparent);mask-image:linear-gradient(180deg,transparent,#000 12%,#000 84%,transparent)}
+.about .img img{width:100%;height:100%;object-fit:cover}
+@media (max-width:860px){.about{grid-template-columns:minmax(0,1fr)}.about .img{order:-1;max-height:76svh}}
+
+/* tira de película */
+.strip{display:flex;gap:clamp(10px,1.4vw,20px);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:18px;scrollbar-width:thin;scrollbar-color:var(--ink) transparent;cursor:grab}
+.strip figure{margin:0;flex:none;width:clamp(200px,24vw,320px);scroll-snap-align:start;display:flex;flex-direction:column;gap:10px}
+.strip video{width:100%;aspect-ratio:9/16;object-fit:cover;background:#111}
+.strip figcaption{display:flex;justify-content:space-between}
+
+/* sonido: filas que corren */
+.sound{position:relative;overflow:hidden}
+.sound .stage{position:relative;height:clamp(460px,52vw,780px);overflow:hidden}
+.sound .stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sound .stage .fade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(6,6,6,0) 20%,rgba(6,6,6,0) 72%,var(--bg) 100%)}
+.runs{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;mix-blend-mode:difference;color:#fff}
+.run{display:flex;width:max-content;animation:run 30s linear infinite}
+.run:nth-child(2){animation-direction:reverse;animation-duration:38s}
+.run span{font-size:clamp(76px,13vw,210px);font-weight:800;letter-spacing:-.065em;line-height:.86;padding-right:.35em;white-space:nowrap}
+.run:nth-child(2) span{font-weight:300}
+@keyframes run{to{transform:translateX(-50%)}}
+.sound .desc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4.5vw,72px);align-items:end;padding-block:clamp(36px,5vw,72px)}
+.tags{display:flex;flex-wrap:wrap;gap:10px}
+.tags span{border:1px solid rgba(239,238,234,.45);border-radius:75px;padding:8px 18px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+@media (max-width:860px){.sound .desc{grid-template-columns:minmax(0,1fr)}}
+
+/* trayectoria */
+.career .stage{position:relative;height:clamp(480px,50vw,760px);overflow:hidden}
+.career .stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.career .stage .fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,6,.8) 0%,rgba(6,6,6,.08) 34%,rgba(6,6,6,.15) 62%,var(--bg) 100%)}
+.career .stage h2{position:absolute;left:var(--gx);top:clamp(40px,5vw,80px);font-size:clamp(64px,9.5vw,160px)}
+.rows .r{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);gap:20px;padding-block:24px;border-top:1px solid var(--line)}
+.rows .r:last-child{border-bottom:1px solid var(--line)}
+.rows .v{font-size:clamp(22px,2.3vw,34px);font-weight:300;letter-spacing:-.02em;line-height:1.2;min-width:0}
+.rows .v b{font-weight:600}
+.rows .rave{align-items:center;border:1px solid rgba(239,238,234,.55);padding:24px clamp(16px,2.2vw,30px);margin-block:10px;background:var(--scrim)}
+.rows .rave .v b{display:block;font-size:clamp(38px,4.6vw,68px);font-weight:800;letter-spacing:-.045em;line-height:.9}
+.rows .rave .v small{display:block;margin-top:8px;font-size:17px;color:#d9d8d4}
+@media (max-width:640px){.rows .r{grid-template-columns:minmax(0,1fr);gap:8px}}
+
+/* música: lista con tapa flotante */
+.tracks a{display:grid;grid-template-columns:64px minmax(0,1.6fr) minmax(0,1fr) auto;gap:clamp(12px,2vw,28px);align-items:center;padding-block:16px;border-top:1px solid var(--line);transition:padding .5s var(--ease),background .3s}
+.tracks a:last-child{border-bottom:1px solid var(--line)}
+.tracks a:hover{padding-left:16px;background:rgba(239,238,234,.05)}
+.tracks .th{width:64px;height:64px;overflow:hidden;background:#111}
+.tracks .th img{width:100%;height:100%;object-fit:cover}
+.tracks .t{font-size:clamp(22px,2.6vw,40px);font-weight:600;letter-spacing:-.03em;line-height:1.05;min-width:0}
+.tracks .t small{display:block;font-size:.5em;font-weight:300;color:var(--mute);letter-spacing:0;margin-top:4px}
+.tracks .go{font-family:var(--mono);font-size:12px;letter-spacing:.18em}
+@media (max-width:640px){.tracks a{grid-template-columns:56px minmax(0,1fr) auto}.tracks .m{display:none}.tracks .th{width:56px;height:56px}}
+#float{position:fixed;left:0;top:0;width:260px;height:260px;z-index:40;pointer-events:none;opacity:0;transform:translate(-999px,-999px);transition:opacity .25s ease;object-fit:cover;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.pills{display:flex;flex-wrap:wrap;gap:12px;margin-top:clamp(28px,4vw,56px)}
+.pill{display:inline-flex;align-items:center;min-height:48px;border:1px solid rgba(239,238,234,.5);border-radius:75px;padding:12px 24px;font-size:17px;transition:background .5s var(--ease),color .5s var(--ease)}
+.pill:hover{background:var(--ink);color:var(--bg)}
+
+/* sets */
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(14px,2vw,30px)}
+@media (max-width:760px){.cards{grid-template-columns:minmax(0,1fr)}}
+.set{position:relative;display:block;aspect-ratio:16/10;overflow:hidden;background:#111}
+.set.feat{grid-column:1 / -1;aspect-ratio:21/9}
+@media (max-width:760px){.set.feat{aspect-ratio:16/10}}
+.set img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.set::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,6,.88),rgba(6,6,6,.25) 55%,rgba(6,6,6,.35))}
+.set:hover img{transform:scale(1.04)}
+.set .cap{position:absolute;inset:auto 0 0 0;z-index:1;padding:clamp(16px,2.2vw,30px);display:flex;flex-direction:column;gap:6px}
+.set .cap b{font-size:clamp(30px,3.6vw,56px);font-weight:800;letter-spacing:-.05em;line-height:.92}
+.set .cap small{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#cfcfcf}
+
+/* estudio: mezcla y mastering */
+.studio{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(32px,5vw,84px);align-items:start}
+@media (max-width:900px){.studio{grid-template-columns:minmax(0,1fr)}}
+.studio .txt{display:flex;flex-direction:column;gap:26px;min-width:0}
+.studio h2{font-size:clamp(52px,6.4vw,104px)}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.steps li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;padding-block:16px;border-top:1px solid var(--line);font-weight:300}
+.steps li:last-child{border-bottom:1px solid var(--line)}
+.steps li b{font-family:var(--mono);font-size:13px;font-weight:400;color:var(--mute);padding-top:4px}
+form{display:flex;flex-direction:column;gap:22px;border:1px solid var(--line);padding:clamp(18px,2.6vw,36px);background:rgba(239,238,234,.03);min-width:0}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+legend{padding:0;margin-bottom:10px}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:minmax(0,1fr)}}
+.opt{position:relative;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);padding:14px;cursor:pointer;min-height:44px;transition:background .3s,color .3s,border-color .3s}
+.opt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.opt b{font-size:19px;font-weight:600;letter-spacing:-.02em}
+.opt small{font-size:13px;font-weight:300;color:var(--mute);line-height:1.35}
+.opt:has(input:checked){background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.opt:has(input:checked) small{color:#3a3a38}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:560px){.two{grid-template-columns:minmax(0,1fr)}}
+.f{display:flex;flex-direction:column;gap:8px;min-width:0}
+.f input,.f textarea{width:100%;background:none;border:0;border-bottom:1px solid rgba(239,238,234,.45);color:var(--ink);font-family:var(--display);font-size:18px;padding:10px 0;border-radius:0;min-height:44px}
+.f textarea{min-height:110px;resize:vertical;line-height:1.45}
+.f input::placeholder,.f textarea::placeholder{color:#6f6e6b}
+.f input:focus,.f textarea:focus{outline:none;border-bottom-color:var(--glow);box-shadow:0 1px 0 0 var(--glow)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.send{align-self:flex-start;display:inline-flex;align-items:center;gap:12px;min-height:52px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:75px;padding:14px 30px;font-family:var(--display);font-size:18px;font-weight:600;cursor:pointer;transition:background .4s var(--ease),color .4s var(--ease)}
+.send:hover{background:none;color:var(--ink)}
+.send[disabled]{opacity:.5;cursor:wait}
+#fstatus{font-size:16px;font-weight:300;min-height:24px;color:#d9d8d4}
+#fstatus a{text-decoration:underline}
+
+/* docencia · rider · booking */
+.teach{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(28px,4.5vw,72px);align-items:center}
+.teach .num{display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.teach .num b{font-size:clamp(140px,17vw,280px);font-weight:800;letter-spacing:-.08em;line-height:.76}
+.teach .num span{font-size:clamp(22px,2.2vw,34px);font-weight:300;line-height:1.1;padding-bottom:8px}
+.teach .txt{display:flex;flex-direction:column;gap:26px;min-width:0}
+.teach .img{aspect-ratio:4/5;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 30%);mask-image:linear-gradient(90deg,transparent,#000 30%)}
+.teach .img img{width:100%;height:100%;object-fit:cover;object-position:40% 30%}
+@media (max-width:860px){.teach{grid-template-columns:minmax(0,1fr)}.teach .img{max-height:68svh;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent);mask-image:linear-gradient(180deg,#000 70%,transparent)}}
+.rig{width:100%;max-width:1100px;height:auto;margin-inline:auto;display:block;overflow:visible}
+.rig .s{stroke:var(--ink)}
+.rig.draw .s{stroke-dasharray:1;animation:draw 2.4s var(--ease) both}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.specs{display:flex;justify-content:center;flex-wrap:wrap;gap:clamp(16px,3.5vw,50px);border-block:1px solid var(--line);padding-block:20px;margin-top:clamp(30px,4vw,56px);font-size:clamp(22px,2.8vw,40px);font-weight:300;letter-spacing:-.02em}
+.specs i{font-style:normal;color:var(--mute)}
+.book .stage{position:relative;height:clamp(380px,40vw,600px);overflow:hidden}
+.book .stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.8}
+.book .stage .fade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(6,6,6,.2) 26%,rgba(6,6,6,.35) 56%,var(--bg) 100%)}
+.book .stage h2{position:absolute;left:var(--gx);bottom:0;font-size:clamp(80px,15vw,250px);letter-spacing:-.075em;line-height:1;margin-left:-.04em}
+.contacts .r{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);gap:20px;align-items:center;padding-block:20px;border-top:1px solid var(--line)}
+.contacts .r:last-child{border-bottom:1px solid var(--line)}
+.contacts .v{display:flex;flex-wrap:wrap;align-items:center;gap:12px 26px;font-size:clamp(19px,2vw,28px);min-width:0;overflow-wrap:anywhere}
+.copy{background:none;border:1px solid var(--line);color:var(--mute);border-radius:75px;padding:8px 16px;min-height:40px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
+.copy:hover{color:var(--ink);border-color:var(--ink)}
+@media (max-width:640px){.contacts .r{grid-template-columns:minmax(0,1fr);gap:8px}}
+footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:26px calc(26px + env(safe-area-inset-bottom,0px))}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .run,.strobe.lit::after,.rig.draw .s,#tear.go{animation:none}
+  main{transition:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="grain" aria-hidden="true"></canvas>
+<div id="scan" aria-hidden="true"></div>
+<div id="tear" aria-hidden="true"></div>
+<img id="float" alt="" aria-hidden="true">
+
+<aside class="rail" aria-label="Navegación">
+  <a class="brand" href="#inicio" aria-label="PVR, inicio">PVR</a>
+  <nav id="railnav">
+    <a href="#sobre"><i></i>Sobre</a>
+    <a href="#en-la-pista"><i></i>En la pista</a>
+    <a href="#sonido"><i></i>Sonido</a>
+    <a href="#trayectoria"><i></i>Trayectoria</a>
+    <a href="#musica"><i></i>Música</a>
+    <a href="#sets"><i></i>Sets</a>
+    <a href="#estudio"><i></i>Mezcla y master</a>
+    <a href="#docencia"><i></i>Docencia</a>
+    <a href="#rider"><i></i>Rider</a>
+    <a href="#booking"><i></i>Booking</a>
+  </nav>
+  <div class="ctl">
+    <div class="meter" id="meter" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <label><span class="mono">Distorsión</span><input type="range" id="dist" min="0" max="100" value="25" aria-label="Distorsión de la página"></label>
+    <button class="sw" id="neg" type="button" aria-pressed="false"><span>Negativo</span><b></b></button>
+  </div>
+</aside>
+
+<header class="top in">
+  <a class="brand" href="#inicio" aria-label="PVR, inicio">PVR</a>
+  <button class="pillbtn" id="menuBtn" aria-expanded="false" aria-controls="sheet">Menú</button>
+</header>
+<nav id="sheet" class="in" aria-label="Menú" hidden>
+  <a href="#sobre">Sobre</a><a href="#sonido">Sonido</a><a href="#trayectoria">Trayectoria</a><a href="#musica">Música</a><a href="#sets">Sets</a><a href="#estudio">Mezcla y master</a><a href="#rider">Rider</a><a href="#booking">Booking</a>
+  <div class="ctl">
+    <label><span class="mono">Distorsión</span><input type="range" id="dist2" min="0" max="100" value="25" aria-label="Distorsión de la página"></label>
+    <button class="sw" id="neg2" type="button" aria-pressed="false"><span>Negativo</span><b></b></button>
+  </div>
+</nav>
+
+<main>
+<section class="hero" id="inicio">
+  <div class="ph">
+    <img src="../img/hero.jpg" alt="PVR de perfil frente a un tubo fluorescente" fetchpriority="high">
+    <video id="heroVideo" muted loop playsinline preload="none" data-land="../video/hero.mp4" data-port="../video/hero-v.mp4" aria-hidden="true"></video>
+  </div>
+  <div class="fade"></div>
+  <h1 class="word"><span>PVR</span></h1>
+  <div class="word s1" aria-hidden="true"><span>PVR</span></div>
+  <div class="word s2" aria-hidden="true"><span>PVR</span></div>
+  <div class="word s3" aria-hidden="true"><span>PVR</span></div>
+  <div class="foot in">
+    <p>DJ · Productor · Docente<br><span class="mono">Buenos Aires · Residente BeTechno</span></p>
+    <a class="next" href="#trayectoria"><span class="mono">Próxima fecha</span><b>RAVE 3000</b></a>
+  </div>
+</section>
+
+<section class="manifest in pad" aria-label="Manifiesto">
+  <video class="mbg lazyv" muted loop playsinline preload="none" poster="../video/manifiesto.jpg" data-src="../video/manifiesto.mp4" data-port="../video/manifiesto-v.mp4" aria-hidden="true"></video>
+  <div class="mfade" aria-hidden="true"></div>
+  <p class="mono">Manifiesto</p>
+  <p class="big" id="manifesto">La música es un espejo. Lo que suena en la pista proyecta lo que llevamos adentro, lo que guardamos y lo que necesitamos soltar. PVR trabaja con ese reflejo: industrial, distorsión y ambientes para que la noche se vuelva una catarsis del lado oscuro.</p>
+</section>
+
+<div class="strobe" aria-hidden="true"></div>
+<section class="about in pad" id="sobre">
+  <div class="txt">
+    <p class="mono">Sobre PVR — Leonardo Peñalver</p>
+    <h2>Industrial oscuro, texturas y catarsis.</h2>
+    <p class="lead">Leonardo Peñalver, aka PVR, es DJ y productor de Buenos Aires, Argentina, y residente de BeTechno, la productora que lo vio nacer. Su música construye atmósferas oscuras y distópicas: industrial, distorsión, texturas y melodías melancólicas que buscan conectar con las fibras más profundas de quien escucha.</p>
+    <p class="lead">En cabina combina sonidos pesados a altos BPM con breaks melódicos y cambios de ritmo. El resultado es una noche intensa, de impacto seco y crudo, que lleva la pista a un lugar de catarsis.</p>
+    <p class="lead">La experimentación constante lo llevó a publicar en sellos internacionales como COUP, Expel Your Demons, Jahanam y VAST Perception, con supports de artistas influyentes de la escena.</p>
+  </div>
+  <div class="img"><img src="../img/sobre.jpg" alt="PVR contra una pared de concreto, en doble exposición" loading="lazy"></div>
+</section>
+
+<section class="in" id="en-la-pista" aria-label="En la pista" style="padding-bottom:clamp(72px,8.5vw,130px)">
+  <div class="sec-head"><h2>En la pista</h2><span class="mono">Arrastrá →</span></div>
+  <div class="strip" id="strip">
+    <figure><video class="lazyv" muted loop playsinline preload="none" poster="../video/momento-1.jpg" data-src="../video/momento-1.mp4" aria-label="PVR mezclando de perfil"></video><figcaption class="mono"><span>PVR 01</span><span>Cabina</span></figcaption></figure>
+    <figure><video class="lazyv" muted loop playsinline preload="none" poster="../video/momento-2.jpg" data-src="../video/momento-2.mp4" aria-label="La pista llena bajo las luces"></video><figcaption class="mono"><span>PVR 02</span><span>Pista</span></figcaption></figure>
+    <figure><video class="lazyv" muted loop playsinline preload="none" poster="../video/momento-3.jpg" data-src="../video/momento-3.mp4" aria-label="Haces de luz sobre el público"></video><figcaption class="mono"><span>PVR 03</span><span>Luces</span></figcaption></figure>
+    <figure><video class="lazyv" muted loop playsinline preload="none" poster="../video/momento-4.jpg" data-src="../video/momento-4.mp4" aria-label="PVR en los CDJ"></video><figcaption class="mono"><span>PVR 04</span><span>CDJ</span></figcaption></figure>
+    <figure><video class="lazyv" muted loop playsinline preload="none" poster="../video/hero-v.jpg" data-src="../video/hero-v.mp4" aria-label="Láseres sobre la cabina"></video><figcaption class="mono"><span>PVR 05</span><span>Láseres</span></figcaption></figure>
+  </div>
+</section>
+
+<div class="strobe" aria-hidden="true"></div>
+<section class="sound" id="sonido">
+  <div class="stage">
+    <img src="../img/sonido.jpg" alt="Collage en blanco y negro: PVR bajo estructuras de concreto" loading="lazy">
+    <div class="fade"></div>
+    <div class="runs" aria-label="Intenso, texturas, catarsis">
+      <div class="run" aria-hidden="true"><span>INTENSO</span><span>CATARSIS</span><span>INTENSO</span><span>CATARSIS</span><span>INTENSO</span><span>CATARSIS</span><span>INTENSO</span><span>CATARSIS</span></div>
+      <div class="run" aria-hidden="true"><span>TEXTURAS</span><span>DISTORSIÓN</span><span>TEXTURAS</span><span>DISTORSIÓN</span><span>TEXTURAS</span><span>DISTORSIÓN</span><span>TEXTURAS</span><span>DISTORSIÓN</span></div>
+      <div class="run" aria-hidden="true"><span>INDUSTRIAL</span><span>AMBIENTES</span><span>INDUSTRIAL</span><span>AMBIENTES</span><span>INDUSTRIAL</span><span>AMBIENTES</span><span>INDUSTRIAL</span><span>AMBIENTES</span></div>
+    </div>
+  </div>
+  <div class="desc in">
+    <p class="lead">Industrial con distorsión integrada, ambientes que se desarrollan y sonidos estridentes que se cruzan con pasajes introspectivos. Groove constante, impacto seco y crudo.</p>
+    <div class="tags"><span>Industrial</span><span>Distorsión</span><span>Ambientes</span><span>Altos BPM</span><span>Breaks melódicos</span></div>
+  </div>
+</section>
+
+<div class="strobe" aria-hidden="true"></div>
+<section class="career" id="trayectoria">
+  <div class="stage">
+    <video class="lazyv" muted loop playsinline preload="none" poster="../video/escenario.jpg" data-src="../video/escenario.mp4" aria-label="PVR tocando con su nombre en la pantalla frente a la pista"></video>
+    <div class="fade"></div>
+    <h2>5 años<br>en cabina.</h2>
+  </div>
+  <div class="rows in" style="padding-block:clamp(20px,3vw,44px) clamp(72px,8.5vw,130px)">
+    <div class="r"><span class="mono">Residencia</span><span class="v"><b>BeTechno</b>, la productora que lo vio nacer</span></div>
+    <div class="r"><span class="mono">Fiestas y clubes</span><span class="v">BeTechno · Tekgen · Tekna 303 · Heiss</span></div>
+    <div class="r rave"><span class="mono">Próxima fecha</span><span class="v"><b>RAVE 3000</b><small>Festival masivo · Fin de año 2026</small></span></div>
+    <div class="r"><span class="mono">Sellos</span><span class="v">COUP · Expel Your Demons · Jahanam · VAST Perception · Paranoid · Introspicere</span></div>
+  </div>
+</section>
+
+<div class="strobe" aria-hidden="true"></div>
+<section class="in pad" id="musica">
+  <div class="sec-head"><h2>Discografía</h2><span class="mono">Álbum · EP · Singles</span></div>
+  <div class="tracks keep" id="tracks">
+    <a href="https://soundcloud.com/pvr_trax/sets/pvr-todo-es-temporal-album" target="_blank" rel="noopener" data-cover="img/cover-todo-es-temporal.jpg"><span class="th"><img src="../img/cover-todo-es-temporal.jpg" alt="" loading="lazy"></span><span class="t">Todo es temporal</span><span class="mono m">Álbum · BeTechno</span><span class="go">↗</span></a>
+    <a href="https://soundcloud.com/pvr_trax/sets/pvr-tercer-mandamiento" target="_blank" rel="noopener" data-cover="img/cover-tercer-mandamiento.jpg"><span class="th"><img src="../img/cover-tercer-mandamiento.jpg" alt="" loading="lazy"></span><span class="t">Tercer Mandamiento</span><span class="mono m">Single · Introspicere</span><span class="go">↗</span></a>
+    <a href="https://soundcloud.com/vastperception/sets/pure-hell" target="_blank" rel="noopener" data-cover="img/cover-pure-hell.jpg"><span class="th"><img src="../img/cover-pure-hell.jpg" alt="" loading="lazy"></span><span class="t">Pure Hell</span><span class="mono m">EP · VAST Perception</span><span class="go">↗</span></a>
+    <a href="https://soundcloud.com/technos-children/premiere-pvr-sleep-anxiety-coup023" target="_blank" rel="noopener" data-cover="img/cover-sleep-anxiety.jpg"><span class="th"><img src="../img/cover-sleep-anxiety.jpg" alt="" loading="lazy"></span><span class="t">Sleep Anxiety</span><span class="mono m">Single · COUP</span><span class="go">↗</span></a>
+    <a href="https://soundcloud.com/paranoid-techno/pvr-mind-your-own-business-1" target="_blank" rel="noopener" data-cover="img/cover-mind-your-own-business.jpg"><span class="th"><img src="../img/cover-mind-your-own-business.jpg" alt="" loading="lazy"></span><span class="t">Mind Your Own Business</span><span class="mono m">Single · Paranoid</span><span class="go">↗</span></a>
+    <a href="https://soundcloud.com/pvr_trax/mar-pvr-incognita" target="_blank" rel="noopener" data-cover="img/cover-inerte.jpg"><span class="th"><img src="../img/cover-inerte.jpg" alt="" loading="lazy"></span><span class="t">Inerte<small>ft. Mar de los Ángeles, INCÓGNITA</small></span><span class="mono m">Single · Self release</span><span class="go">↗</span></a>
+  </div>
+  <div class="pills">
+    <a class="pill" href="https://open.spotify.com/artist/4VE9PU7va4gBisff4hAZGF" target="_blank" rel="noopener">Spotify ↗</a>
+    <a class="pill" href="https://soundcloud.com/pvr_trax" target="_blank" rel="noopener">SoundCloud ↗</a>
+    <a class="pill" href="https://www.youtube.com/@pvr_tracks" target="_blank" rel="noopener">YouTube ↗</a>
+  </div>
+</section>
+
+<section class="in" id="sets" aria-label="Sets en video" style="padding-bottom:clamp(72px,8.5vw,130px)">
+  <div class="sec-head"><h2>Sets</h2><span class="mono">En vivo · YouTube</span></div>
+  <div class="cards">
+    <a class="set feat" href="https://youtu.be/zJYam65M9F0" target="_blank" rel="noopener"><img src="../img/set-03.jpg" alt="PVR en cabina frente a la pista llena" loading="lazy"><div class="cap"><span class="mono">DJ set · Radio</span><b>Black Room Radio</b></div></a>
+    <a class="set" href="https://www.youtube.com/watch?v=9dhB1MIS1ok&amp;t=160s" target="_blank" rel="noopener"><img src="../img/set-01.jpg" alt="PVR en cabina frente al público" loading="lazy"><div class="cap"><b>ASFIXIA - PVR</b><small>Armado en conjunto con Fulltechno</small></div></a>
+    <a class="set" href="https://www.youtube.com/watch?v=sD5t9g4C2WA" target="_blank" rel="noopener"><img src="../img/set-02.jpg" alt="PVR de espaldas en la cabina" loading="lazy"><div class="cap"><b>Droxcast Set</b><small>Armado con Droxtrax</small></div></a>
+  </div>
+</section>
+
+<div class="strobe" aria-hidden="true"></div>
+<section class="in pad" id="estudio">
+  <div class="studio">
+    <div class="txt">
+      <p class="mono">Estudio</p>
+      <h2>Mezcla y mastering</h2>
+      <p class="lead">El mismo criterio que PVR lleva a la cabina y al aula, aplicado a tu música. Mezcla y mastering para techno, industrial y electrónica oscura, con foco en el peso, la textura y la claridad.</p>
+      <p class="lead">Profesor de producción y mezcla desde hace cuatro años, con lanzamientos propios en sellos como COUP, VAST Perception y Paranoid.</p>
+      <ol class="steps">
+        <li><b>01</b><span>Completás el formulario con el link a tu track o tus stems.</span></li>
+        <li><b>02</b><span>Recibís una respuesta con propuesta, tiempos y presupuesto.</span></li>
+        <li><b>03</b><span>Se trabaja el material y recibís tu track terminado.</span></li>
+      </ol>
+    </div>
+    <form id="studioForm" novalidate>
+      <fieldset>
+        <legend class="mono">Servicio</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="servicio" id="sv-mezcla" value="Mezcla" checked><b>Mezcla</b><small>Balance, espacio y carácter a partir de tus stems.</small></label>
+          <label class="opt"><input type="radio" name="servicio" id="sv-master" value="Mastering"><b>Mastering</b><small>Volumen y cohesión para club y plataformas.</small></label>
+          <label class="opt"><input type="radio" name="servicio" id="sv-ambos" value="Mezcla + Mastering"><b>Mezcla + master</b><small>El track completo, de los stems al master final.</small></label>
+        </div>
+      </fieldset>
+      <div class="two">
+        <div class="f"><label class="mono" for="f-nombre">Nombre / proyecto</label><input id="f-nombre" name="nombre" type="text" autocomplete="name" required placeholder="Tu nombre o alias"></div>
+        <div class="f"><label class="mono" for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required placeholder="tu@mail.com"></div>
+      </div>
+      <div class="two">
+        <div class="f"><label class="mono" for="f-tracks">Cantidad de tracks</label><input id="f-tracks" name="tracks" type="number" min="1" inputmode="numeric" placeholder="1"></div>
+        <div class="f"><label class="mono" for="f-fecha">Fecha ideal de entrega</label><input id="f-fecha" name="entrega" type="text" placeholder="Ej.: fin de mes"></div>
+      </div>
+      <div class="f"><label class="mono" for="f-link">Link al material</label><input id="f-link" name="link" type="url" placeholder="Drive, WeTransfer o SoundCloud privado"></div>
+      <div class="f"><label class="mono" for="f-refs">Referencias</label><input id="f-refs" name="referencias" type="text" placeholder="Tracks o artistas que te sirvan de guía"></div>
+      <div class="f"><label class="mono" for="f-msg">Mensaje</label><textarea id="f-msg" name="mensaje" placeholder="Contame sobre el proyecto y qué buscás"></textarea></div>
+      <div class="hp" aria-hidden="true"><label for="f-web">No completar</label><input id="f-web" name="_honey" type="text" tabindex="-1" autocomplete="off"></div>
+      <button class="send" type="submit" id="sendBtn">Enviar pedido <span aria-hidden="true">→</span></button>
+      <p id="fstatus" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<div class="strobe" aria-hidden="true"></div>
+<section class="teach in pad" id="docencia">
+  <div class="txt">
+    <p class="mono">Producción y docencia</p>
+    <div class="num"><b>4</b><span>años como profesor<br>de producción y mezcla</span></div>
+    <p class="lead">Profesor de producción y mezcla desde hace cuatro años y, actualmente, director del área de producción musical de Tekgen. Enseñar le dio una mirada técnica y analítica del sonido que se nota en cabina: cada textura y cada distorsión están ubicadas con intención.</p>
+  </div>
+  <div class="img"><img src="../img/docencia.jpg" alt="PVR de perfil mirando hacia abajo" loading="lazy"></div>
+</section>
+
+<div class="strobe" aria-hidden="true"></div>
+<section class="in pad" id="rider">
+  <div class="sec-head"><h2>Rider técnico</h2><span class="mono">Setup de cabina</span></div>
+  <div id="rigslot"></div>
+  <div class="specs"><span>3 × CDJ-3000</span><i>/</i><span>1 × DJM-A9</span></div>
+</section>
+
+<div class="strobe" aria-hidden="true"></div>
+<section class="book" id="booking">
+  <div class="stage"><img src="../img/booking.jpg" alt="Doble exposición: edificio brutalista y tubo de luz" loading="lazy"><div class="fade"></div><h2>Booking</h2></div>
+  <div class="contacts in" style="padding-block:clamp(28px,3.6vw,50px) clamp(48px,6vw,90px)">
+    <div class="r"><span class="mono">Directo</span><span class="v"><a href="mailto:contact.leopvr@gmail.com">contact.leopvr@gmail.com</a><button class="copy" type="button" data-copy="contact.leopvr@gmail.com">Copiar</button></span></div>
+    <div class="r"><span class="mono">BeTechno</span><span class="v"><a href="mailto:betechnocommunity@gmail.com">betechnocommunity@gmail.com</a><button class="copy" type="button" data-copy="betechnocommunity@gmail.com">Copiar</button></span></div>
+    <div class="r"><span class="mono">Redes</span><span class="v"><a href="https://www.instagram.com/pvr__________" target="_blank" rel="noopener">Instagram ↗</a><a href="https://soundcloud.com/pvr_trax" target="_blank" rel="noopener">SoundCloud ↗</a><a href="https://open.spotify.com/artist/4VE9PU7va4gBisff4hAZGF" target="_blank" rel="noopener">Spotify ↗</a><a href="https://www.youtube.com/@pvr_tracks" target="_blank" rel="noopener">YouTube ↗</a></span></div>
+    <div class="r"><span class="mono">Prensa</span><span class="v"><a href="https://drive.google.com/drive/u/4/folders/1McOlb39oepg8M8IJdTcWV4rKYDw8wyVy" target="_blank" rel="noopener">PVR Presskit ↗</a></span></div>
+  </div>
+  <footer class="in mono" style="border-top:1px solid var(--line)"><span>PVR · Leonardo Peñalver</span><span>pvrstudio.com · 2026</span></footer>
+</section>
+</main>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function(s){ return document.querySelector(s); };
+  var $$ = function(s){ return [].slice.call(document.querySelectorAll(s)); };
+
+  /* rider: dibujo generado (players y mixer) */
+  (function(){
+    function sh(tag, attrs){ var s='<'+tag+' class="s" pathLength="1"'; for (var k in attrs) s+=' '+k+'="'+attrs[k]+'"'; return s+'></'+tag+'>'; }
+    function player(x){ var W=280, o='<g transform="translate('+x+' 0)">';
+      o+=sh('rect',{x:0,y:0,width:W,height:440,rx:10})+sh('rect',{x:24,y:22,width:W-48,height:92,rx:4})+sh('line',{x1:24,y1:132,x2:W-24,y2:132,'stroke-opacity':.45});
+      for (var i=0;i<8;i++) o+=sh('rect',{x:(24+i*29.5).toFixed(1),y:146,width:23.5,height:10,rx:2,'stroke-opacity':.6});
+      o+=sh('circle',{cx:129,cy:282,r:95})+sh('circle',{cx:129,cy:282,r:72,'stroke-opacity':.5})+sh('circle',{cx:129,cy:282,r:19});
+      o+=sh('rect',{x:W-26,y:196,width:12,height:176,rx:3,'stroke-opacity':.7})+sh('rect',{x:W-30,y:278,width:20,height:12,rx:2});
+      o+=sh('circle',{cx:34,cy:378,r:13,'stroke-opacity':.75})+sh('circle',{cx:34,cy:414,r:17})+sh('circle',{cx:34,cy:196,r:9,'stroke-opacity':.6})+sh('circle',{cx:34,cy:226,r:9,'stroke-opacity':.6});
+      return o+'</g>'; }
+    function mixer(x){ var W=320, o='<g transform="translate('+x+' 0)">'+sh('rect',{x:0,y:0,width:W,height:440,rx:10});
+      var xs=[42.5,97.5,152.5,207.5], ys=[40,82,124,166], cap=[290,324,282,346];
+      xs.forEach(function(cx,i){ ys.forEach(function(cy){ o+=sh('circle',{cx:cx,cy:cy,r:10,'stroke-opacity':.7}); });
+        o+=sh('rect',{x:cx-8,y:194,width:16,height:8,rx:2,'stroke-opacity':.55})+sh('line',{x1:cx,y1:222,x2:cx,y2:370})+sh('rect',{x:cx-10,y:cap[i],width:20,height:12,rx:2}); });
+      o+=sh('rect',{x:246,y:22,width:48,height:70,rx:3,'stroke-opacity':.7});
+      [124,166,208].forEach(function(cy){ o+=sh('circle',{cx:270,cy:cy,r:12,'stroke-opacity':.7}); });
+      o+=sh('rect',{x:258,y:240,width:8,height:130,rx:2,'stroke-opacity':.45})+sh('rect',{x:274,y:240,width:8,height:130,rx:2,'stroke-opacity':.45});
+      o+=sh('line',{x1:77,y1:410,x2:173,y2:410})+sh('rect',{x:117,y:402,width:16,height:16,rx:2});
+      return o+'</g>'; }
+    $('#rigslot').innerHTML='<svg class="rig" id="rig" role="img" aria-label="Setup: tres players y un mixer de cuatro canales" viewBox="-4 -4 1258 448" fill="none" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">'+player(0)+player(310)+mixer(620)+player(970)+'</svg>';
+  })();
+
+  /* grano vivo */
+  var cv=$('#grain'), ctx=cv.getContext('2d'), frames=[], fi=0;
+  for (var k=0;k<4;k++){ var c=document.createElement('canvas'); c.width=c.height=220; var x=c.getContext('2d'), dd=x.createImageData(220,220);
+    for (var i=0;i<dd.data.length;i+=4){ var v=Math.random()*255|0; dd.data[i]=dd.data[i+1]=dd.data[i+2]=v; dd.data[i+3]=255; } x.putImageData(dd,0,0); frames.push(c); }
+  function size(){ cv.width=Math.ceil(innerWidth/2); cv.height=Math.ceil(innerHeight/2); }
+  function paint(){ ctx.fillStyle=ctx.createPattern(frames[fi],'repeat'); ctx.save(); ctx.translate(Math.random()*220|0,Math.random()*220|0); ctx.fillRect(-220,-220,cv.width+440,cv.height+440); ctx.restore(); fi=(fi+1)%4; }
+  size(); paint(); addEventListener('resize',function(){ size(); paint(); });
+  if (!reduce) setInterval(paint,70);
+
+  /* distorsión y negativo: los dos juegos de controles quedan sincronizados */
+  var dists=$$('#dist,#dist2'), negs=$$('#neg,#neg2'), tear=$('#tear'), dval=.25;
+  function setDist(v){ dval=v/100; root.style.setProperty('--d', dval.toFixed(2)); dists.forEach(function(el){ el.value=v; }); }
+  dists.forEach(function(el){ el.addEventListener('input',function(){ setDist(+el.value); }); });
+  function setNeg(on){ root.classList.toggle('neg',on); negs.forEach(function(b){ b.setAttribute('aria-pressed',String(on)); }); }
+  negs.forEach(function(b){ b.addEventListener('click',function(){ setNeg(!root.classList.contains('neg')); }); });
+  if (!reduce){
+    (function loop(){ setTimeout(function(){ if (dval>.05){ tear.style.top=(8+Math.random()*80)+'%'; tear.classList.remove('go'); void tear.offsetWidth; tear.classList.add('go'); } loop(); }, 900+Math.random()*(5200-dval*4200)); })();
+    var bars=$$('#meter span');
+    setInterval(function(){ bars.forEach(function(b,i){ var h=18+Math.random()*(40+dval*42)+(i%3===0?12:0); b.style.height=Math.min(100,h)+'%'; }); },120);
+  }
+
+  /* menú móvil */
+  var btn=$('#menuBtn'), sheet=$('#sheet');
+  btn.addEventListener('click',function(){ var open=sheet.hidden; sheet.hidden=!open; btn.setAttribute('aria-expanded',String(open)); btn.textContent=open?'Cerrar':'Menú'; });
+  sheet.addEventListener('click',function(e){ if (e.target.tagName==='A'){ sheet.hidden=true; btn.setAttribute('aria-expanded','false'); btn.textContent='Menú'; } });
+
+  /* riel: pista activa */
+  var links=$$('#railnav a'), map={};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  var sio=new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ links.forEach(function(a){ a.classList.remove('on'); }); var a=map[e.target.id]; if (a) a.classList.add('on'); } }); },{rootMargin:'-45% 0px -50% 0px'});
+  Object.keys(map).forEach(function(id){ var s=document.getElementById(id); if (s) sio.observe(s); });
+
+  /* manifiesto palabra por palabra */
+  var m=$('#manifesto'); m.innerHTML=m.textContent.trim().split(/\s+/).map(function(w){ return '<span class="w">'+w+'</span>'; }).join(' ');
+  var ws=$$('#manifesto .w'), tick=false;
+  function frame(){ tick=false; var r=m.getBoundingClientRect(), vh=innerHeight; var p=Math.min(1,Math.max(0,(vh*.85-r.top)/(r.height+vh*.35))), n=Math.round(p*ws.length); for (var i=0;i<ws.length;i++) ws[i].classList.toggle('on',i<n); }
+  if (!reduce){ addEventListener('scroll',function(){ if(!tick){ tick=true; requestAnimationFrame(frame); } },{passive:true}); frame(); } else ws.forEach(function(w){ w.classList.add('on'); });
+
+  /* strobe y rider al entrar */
+  if (!reduce){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add(e.target.id==='rig'?'draw':'lit'); io.unobserve(e.target); } }); },{threshold:.5});
+    $$('.strobe').forEach(function(s){ io.observe(s); }); io.observe($('#rig'));
+  }
+
+  /* videos */
+  if (!reduce){
+    var hv=$('#heroVideo'); hv.src=(innerHeight>innerWidth)?hv.dataset.port:hv.dataset.land;
+    hv.addEventListener('playing',function(){ hv.classList.add('on'); }); var hp=hv.play(); if (hp&&hp.catch) hp.catch(function(){});
+    var vio=new IntersectionObserver(function(es){ es.forEach(function(e){ var v=e.target;
+      if (e.isIntersecting){ if (!v.getAttribute('src')&&v.dataset.src) v.src=(v.dataset.port&&innerHeight>innerWidth)?v.dataset.port:v.dataset.src; var p=v.play(); if (p&&p.catch) p.catch(function(){}); } else v.pause(); }); },{rootMargin:'200px'});
+    $$('.lazyv').forEach(function(v){ vio.observe(v); });
+  }
+
+  /* tira: arrastrar con el mouse */
+  (function(){ var s=$('#strip'), down=false, sx=0, sl=0;
+    s.addEventListener('pointerdown',function(e){ if (e.pointerType!=='mouse') return; down=true; sx=e.clientX; sl=s.scrollLeft; s.style.scrollSnapType='none'; s.style.cursor='grabbing'; });
+    addEventListener('pointermove',function(e){ if (down) s.scrollLeft=sl-(e.clientX-sx); });
+    addEventListener('pointerup',function(){ if (down){ down=false; s.style.scrollSnapType=''; s.style.cursor=''; } });
+  })();
+
+  /* discografía: tapa que sigue al cursor */
+  (function(){ var f=$('#float'); if (!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    $$('#tracks a').forEach(function(a){
+      a.addEventListener('pointerenter',function(){ f.src=a.dataset.cover; f.style.opacity=1; });
+      a.addEventListener('pointerleave',function(){ f.style.opacity=0; });
+      a.addEventListener('pointermove',function(e){ var x=Math.min(e.clientX+28, innerWidth-280), y=Math.min(Math.max(e.clientY-130,10), innerHeight-270); f.style.transform='translate('+x+'px,'+y+'px) rotate('+((e.clientX/innerWidth-.5)*6).toFixed(2)+'deg)'; });
+    });
+  })();
+
+  /* copiar */
+  $$('.copy').forEach(function(b){ b.addEventListener('click',function(){ var t=b.dataset.copy;
+    function done(){ b.textContent='Copiado'; setTimeout(function(){ b.textContent='Copiar'; },1600); }
+    function fb(){ var r=document.createRange(); r.selectNodeContents(b.previousElementSibling); var s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent='Seleccionado'; }
+    try{ navigator.clipboard.writeText(t).then(done,fb); }catch(e){ fb(); } }); });
+
+  /* formulario de mezcla y mastering → mail */
+  (function(){
+    var TO='contact.leopvr@gmail.com', form=$('#studioForm'), st=$('#fstatus'), btnS=$('#sendBtn');
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      var d={}; new FormData(form).forEach(function(v,k){ d[k]=String(v).trim(); });
+      if (d._honey) return;
+      if (!d.nombre){ st.textContent='Falta tu nombre o el de tu proyecto.'; $('#f-nombre').focus(); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email||'')){ st.textContent='Revisá el email: lo necesito para responderte.'; $('#f-email').focus(); return; }
+      var subject='Pedido de '+d.servicio+' — '+d.nombre;
+      var body='Servicio: '+d.servicio+'\nNombre / proyecto: '+d.nombre+'\nEmail: '+d.email+'\nCantidad de tracks: '+(d.tracks||'-')+'\nFecha ideal de entrega: '+(d.entrega||'-')+'\nLink al material: '+(d.link||'-')+'\nReferencias: '+(d.referencias||'-')+'\n\nMensaje:\n'+(d.mensaje||'-');
+      function fallback(){ st.innerHTML='No se pudo enviar desde acá. <a href="mailto:'+TO+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)+'">Abrí tu mail con el pedido ya escrito</a> o escribí a '+TO+'.'; btnS.disabled=false; }
+      btnS.disabled=true; st.textContent='Enviando…';
+      var payload={ _subject:subject, _template:'table', _captcha:'false', Servicio:d.servicio, Nombre:d.nombre, email:d.email, Tracks:d.tracks||'-', Entrega:d.entrega||'-', Material:d.link||'-', Referencias:d.referencias||'-', Mensaje:d.mensaje||'-' };
+      try{
+        fetch('https://formsubmit.co/ajax/'+TO,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
+          .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+          .then(function(j){ if (j && (j.success===true || j.success==='true')){ st.textContent='Pedido enviado. Vas a recibir una respuesta en '+d.email+'.'; form.reset(); btnS.disabled=false; } else fallback(); })
+          .catch(fallback);
+      }catch(err){ fallback(); }
+    });
+  })();
+})();
+</script>
+</body>
+</html>
