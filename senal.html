@@ -23,7 +23,7 @@
 */
 :root{
   color-scheme:dark;
-  --bg:#030303; --ink:#efeeea; --mute:#8d8c88; --line:rgba(239,238,234,.16); --scrim:rgba(3,3,3,.72);
+  --bg:#000; --ink:#efeeea; --mute:#8d8c88; --line:rgba(239,238,234,.16); --scrim:rgba(3,3,3,.72);
   --display:'Inter Tight','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --gx:max(clamp(16px,5vw,72px), env(safe-area-inset-left,0px));
@@ -66,15 +66,19 @@ main,footer{position:relative;z-index:10}
 .pad{padding-block:clamp(88px,11vw,170px)}
 
 /* inicio */
-.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;padding-top:calc(env(safe-area-inset-top,0px) + 92px);padding-bottom:clamp(28px,5vw,56px);overflow:hidden}
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:calc(env(safe-area-inset-top,0px) + 92px);padding-bottom:clamp(28px,5vw,56px);overflow:hidden}
 .hero .bgimg{position:absolute;inset:0}
-.hero .title{width:100%;aspect-ratio:var(--ar,3.4);position:relative;z-index:2}
-.hero .row{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.hero .title{width:92%;margin:-14vh auto 0;aspect-ratio:var(--ar,3.4);position:relative;z-index:2}
+.hero .row{position:absolute;z-index:2;left:var(--gx);right:var(--gxr);bottom:clamp(28px,5vw,56px);display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
 .hero .tag{font-size:clamp(28px,3.4vw,50px);font-weight:200;letter-spacing:-.025em;line-height:1.06}
 .hero .meta{display:flex;flex-direction:column;align-items:flex-end;gap:8px;text-align:right}
 .next{position:absolute;right:var(--gxr);top:calc(env(safe-area-inset-top,0px) + 86px);z-index:3;display:flex;flex-direction:column;gap:6px;border:1px solid rgba(255,255,255,.35);padding:14px 18px;background:var(--scrim);backdrop-filter:blur(4px)}
 .next b{font-size:22px;font-weight:600;letter-spacing:-.02em}
-@media (max-width:640px){.hero .meta{align-items:flex-start;text-align:left}.next{display:none}}
+@media (max-width:640px){
+  .hero .meta{align-items:flex-start;text-align:left}.next{display:none}
+  /* en celular el PVR no entra entero: más grande, al medio, y la estela cae hasta abajo */
+  .hero .title{width:175%;margin:-16vh 0 0 -37.5%}
+}
 
 /* manifiesto */
 .man{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;align-items:center;min-height:100svh}
@@ -193,8 +197,10 @@ main,footer{position:relative;z-index:10}
 .book .bstage .gl{position:absolute;inset:0}
 .book .bstage h2{position:relative;z-index:2;font-size:clamp(84px,16vw,260px);font-weight:200;letter-spacing:-.075em;line-height:1}
 .contacts{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0;padding-block:clamp(24px,4vw,56px) clamp(80px,9vw,140px)}
-.contacts .kepes{position:absolute;left:50%;top:0;bottom:0;width:min(520px,80vw);transform:translateX(-50%);z-index:0}
+.contacts .kepes{position:absolute;left:50%;top:-6%;bottom:-2%;width:min(820px,100vw);transform:translateX(-50%);z-index:0}
 .contacts .c{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:12px;padding-block:clamp(26px,3vw,40px);border-bottom:1px solid var(--line);width:min(760px,100%)}
+/* sombreado detrás de cada dato para que la figura de fondo no lo tape */
+.contacts .c::before{content:"";position:absolute;inset:6% 4%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,.92) 0%,rgba(0,0,0,.75) 45%,rgba(0,0,0,0) 75%)}
 .contacts .c:first-of-type{border-top:1px solid var(--line)}
 .contacts .big{font-size:clamp(24px,3.4vw,46px);font-weight:300;letter-spacing:-.03em;overflow-wrap:anywhere}
 .contacts .links{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
@@ -273,7 +279,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 <main>
 <!-- INICIO -->
 <section class="hero in" id="inicio">
-  <div class="gl bgimg" data-gl="halftone" data-src="img/hero.jpg" data-label="PVR"><span class="sr">PVR de perfil frente a un tubo fluorescente</span></div>
+  <div class="gl bgimg" data-gl="relief" data-src="img/hero.jpg" data-label="PVR"><span class="sr">PVR de perfil frente a un tubo fluorescente</span></div>
   <a class="next" href="#trayectoria"><span class="mono">Próxima fecha</span><b>RAVE 3000</b><span class="mono" style="letter-spacing:.14em">Fin de año 2026</span></a>
   <div class="gl title" data-gl="title"><h1 class="sr">PVR</h1></div>
   <div class="row dif">
@@ -300,7 +306,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     <p class="lead">En cabina combina sonidos pesados a altos BPM con breaks melódicos y cambios de ritmo. El resultado es una noche intensa, de impacto seco y crudo, que lleva la pista a un lugar de catarsis.</p>
     <p class="lead">La experimentación constante lo llevó a publicar en sellos internacionales como COUP, Expel Your Demons, Jahanam y VAST Perception, con supports de artistas influyentes de la escena.</p>
   </div>
-  <div class="gl img" data-gl="image" data-src="img/sobre.jpg" data-frame="wire" data-glitch="0" data-label="PVR"><span class="sr">PVR contra una pared de concreto, en doble exposición</span></div>
+  <div class="gl img" data-gl="image" data-src="img/sobre.jpg" data-frame="bare" data-look="engrave" data-tilt="1" data-gain="1.3" data-glitch="0" data-label="PVR"><span class="sr">PVR contra una pared de concreto, en doble exposición</span></div>
 </section>
 
 <!-- EN LA PISTA -->
@@ -374,17 +380,17 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
   <div class="sec-head"><h2>Sets</h2><span class="mono">En vivo · YouTube</span></div>
   <div class="cards">
     <a class="set feat" href="https://youtu.be/zJYam65M9F0" target="_blank" rel="noopener">
-      <div class="gl" data-gl="image" data-src="img/set-03.jpg" data-frame="bare" data-glitch="0" data-gain=".85" data-label="Ver set"><span class="sr">PVR en cabina con la cara iluminada entre los haces</span></div>
+      <div class="gl" data-gl="image" data-src="img/set-03.jpg" data-frame="bare" data-tilt="1" data-glitch="0" data-gain="1.05" data-label="Ver set"><span class="sr">PVR en cabina con la cara iluminada entre los haces</span></div>
       <div class="cap"><div><span class="mono">DJ set · Radio</span><b>Black Room Radio</b></div>
         <svg class="play" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M27 22l15 10-15 10z"/></svg></div>
     </a>
     <a class="set" href="https://www.youtube.com/watch?v=9dhB1MIS1ok&amp;t=160s" target="_blank" rel="noopener">
-      <div class="gl" data-gl="image" data-src="img/set-01.jpg" data-frame="bare" data-glitch="0" data-gain=".85" data-label="Ver set"><span class="sr">PVR en cabina frente al público</span></div>
+      <div class="gl" data-gl="image" data-src="img/set-01.jpg" data-frame="bare" data-tilt="1" data-glitch="0" data-gain="1.05" data-label="Ver set"><span class="sr">PVR en cabina frente al público</span></div>
       <div class="cap"><div><span class="mono">Set en vivo</span><b>ASFIXIA - PVR</b><small>Armado en conjunto con Fulltechno</small></div>
         <svg class="play" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M27 22l15 10-15 10z"/></svg></div>
     </a>
     <a class="set" href="https://www.youtube.com/watch?v=sD5t9g4C2WA" target="_blank" rel="noopener">
-      <div class="gl" data-gl="image" data-src="img/set-02.jpg" data-frame="bare" data-glitch="0" data-gain=".85" data-label="Ver set"><span class="sr">PVR de espaldas en la cabina</span></div>
+      <div class="gl" data-gl="image" data-src="img/set-02.jpg" data-frame="bare" data-tilt="1" data-glitch="0" data-gain="1.05" data-label="Ver set"><span class="sr">PVR de espaldas en la cabina</span></div>
       <div class="cap"><div><span class="mono">Set en vivo</span><b>Droxcast Set</b><small>Armado con Droxtrax</small></div>
         <svg class="play" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M27 22l15 10-15 10z"/></svg></div>
     </a>
@@ -398,7 +404,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     <div class="num"><b>4</b><span>años como profesor<br>de producción y mezcla</span></div>
     <p class="lead">Profesor de producción y mezcla desde hace cuatro años y, actualmente, director del área de producción musical de Tekgen. Enseñar le dio una mirada técnica y analítica del sonido que se nota en cabina: cada textura y cada distorsión están ubicadas con intención.</p>
   </div>
-  <div class="gl img" data-gl="image" data-src="img/docencia.jpg" data-frame="wire" data-glitch="0" data-label="PVR"><span class="sr">PVR mirando a cámara</span></div>
+  <div class="gl img" data-gl="image" data-src="img/docencia.jpg" data-frame="bare" data-look="engrave" data-tilt="1" data-gain="1.4" data-glitch="0" data-label="PVR"><span class="sr">PVR mirando a cámara</span></div>
 </section>
 
 <!-- RIDER -->
@@ -546,15 +552,15 @@ const VERT_UV = `varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMat
 
 // ================= renderer (resolución completa: grano fino, nada de píxel) =================
 const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('gl'), antialias:true, powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));     // grano al píxel real de la pantalla: más fino
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = .72;
+renderer.toneMappingExposure = .6;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
 const FOG_D = .05;
-scene.fog = new THREE.FogExp2(0x030303, FOG_D*(.3+.7*1.9));
+scene.fog = new THREE.FogExp2(0x000000, FOG_D*(.3+.7*1.9));
 scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(renderer), .04).texture;
 const FOV = 35, VIEW_D = 12, K = 2*Math.tan(FOV/2*Math.PI/180);
 const camera = new THREE.PerspectiveCamera(FOV, 1, .1, 160);
@@ -624,7 +630,7 @@ const matteMat = new THREE.MeshStandardMaterial({color:0x0b0b0b, metalness:.7, r
 
 // ================= física verlet =================
 const P = [], C = [];
-function pt(v, pin=false){ P.push({p:v.clone(), o:v.clone(), w:pin?0:1, pin:pin?v.clone():null}); return P.length-1; }
+function pt(v, pin=false){ P.push({p:v.clone(), o:v.clone(), w:pin?0:1, pin:pin?v.clone():null, s:false}); return P.length-1; }
 function rope(a, b, n, pinB=true){
   const ids = [];
   for(let i=0;i<=n;i++){ const v = a.clone().lerp(b, i/n).add(new V3((Math.random()-.5)*.02,(Math.random()-.5)*.02,(Math.random()-.5)*.02)); ids.push(pt(v, i===0 || (i===n && pinB))); }
@@ -634,7 +640,8 @@ const chains = [];
 function addChain(ids, scale, near){
   const mesh = new THREE.InstancedMesh(near ? LINK_NEAR : LINK_FAR, near ? chrome : chromeFar, ids.length-1);
   mesh.castShadow = near; mesh.frustumCulled = false; scene.add(mesh);
-  chains.push({ids, scale, mesh, twist:ids.map(()=> (Math.random()-.5)*.35)});
+  // active: sólo se simula y dibuja mientras está en pantalla. last: para moverla entera mientras duerme
+  chains.push({ids, scale, mesh, twist:ids.map(()=> (Math.random()-.5)*.35), active:true, last:P[ids[0]].p.clone()});
   for(let i=0;i<ids.length-1;i++) C.push([ids[i], ids[i+1], PITCH*scale]);
   return ids;
 }
@@ -653,25 +660,31 @@ function rectW(el, out = {}){
 
 // ================= pantallas =================
 const SCREEN_FRAG = NOISE + `
-uniform sampler2D map, mapB; uniform float time,vel,hover,rt,planeA,texA,texB,distort,glitch,isImg,fade,prog,gain,soft,bare; uniform vec2 rc; varying vec2 vUv;
+uniform sampler2D map, mapB; uniform float time,vel,hover,rt,planeA,texA,texB,distort,glitch,isImg,fade,prog,gain,soft,bare,vseed,look; uniform vec2 rc; varying vec2 vUv;
 vec2 cover(vec2 uv,float ta){ vec2 s = planeA>ta ? vec2(1., ta/planeA) : vec2(planeA/ta, 1.); return (uv-.5)*s+.5; }
 vec3 grab(sampler2D t, vec2 uv, float ta, float sh){
   vec2 tc=cover(uv,ta);
-  float l=lum(texture2D(t,tc).rgb), lr=lum(texture2D(t,tc+vec2(sh,0.)).rgb), lb=lum(texture2D(t,tc-vec2(sh,0.)).rgb);
-  return mix(vec3(l),vec3(lr,l,lb),.45);
+  float l=lum(texture2D(t,tc).rgb), lr=lum(texture2D(t,tc+vec2(sh,0.)).rgb), lb=lum(texture2D(t,tc-vec2(sh*.6,0.)).rgb);
+  return mix(vec3(l),vec3(lr,l,lb),.5);
 }
 void main(){
   vec2 uv=vUv;
   vec2 d=uv-rc; d.x*=planeA; float r=length(d);
   float ring=exp(-pow((r-rt*1.4)*9.,2.))*exp(-rt*1.8);
   uv-=normalize(d+1e-5)*vec2(1./planeA,1.)*ring*.025;
+  float gate=step(.001,glitch);                                     // en caras: nada que desplace la imagen
   float k=(distort*(1.-hover*.85)+min(abs(vel)*2.5,1.3))*glitch + sin(prog*3.1416)*.9;
   float n=fbm(vec2(uv.y*5.+time*.3,time*.15));
   uv.x+=(n-.5)*.05*k;
   float row=floor(uv.y*48.); float tear=step(.93,h21(vec2(row,floor(time*10.))));
   uv.x+=tear*(h21(vec2(row+7.,floor(time*10.)))-.5)*.07*k;
+  // VHS mínimo: banda de tracking que baja lenta, temblor de línea y sangrado de color
+  float vy=fract(-time*.035+vseed);
+  float band=smoothstep(.045,0.,abs(vUv.y-vy));
+  uv.x+=band*.004*sin(vUv.y*260.+time*14.)*gate;
+  uv.x+=(h21(vec2(floor(vUv.y*220.),floor(time*20.)))-.5)*.0011*gate;
   uv+= (uv-.5)*hover*-.015;                                         // leve zoom al pasar
-  float sh=.004*k+ring*.006;
+  float sh=.004*k+ring*.006+.0016;
   vec3 c=grab(map,uv,texA,sh);
   if(prog>0.){
     vec3 cb=grab(mapB,uv,texB,sh);
@@ -680,28 +693,57 @@ void main(){
   }
   float l=lum(c);
   c=smoothstep(vec3(.03),vec3(.95),c)*(gain+hover*.3)+ring*.12;
+  c+=band*(h21(vUv*vec2(420.,90.)+time)-.5)*.07; c*=1.-band*.06;
   float th=step(.5,l+(h21(floor(gl_FragCoord.xy*.5))-.5)*.3);
   c=mix(c,vec3(th)*.8,isImg*(1.-hover)*.35);
-  float e=smoothstep(0.,soft,vUv.x)*smoothstep(0.,soft,1.-vUv.x)*smoothstep(0.,soft,vUv.y)*smoothstep(0.,soft,1.-vUv.y);
+  // grabado: hacia los bordes la foto se vuelve líneas finas (vector) y se funde con la página
+  if(look>.5){
+    float N=150.; float y=vUv.y*N+sin(vUv.x*7.+time*.25+vseed)*.35;
+    float line=smoothstep(l*.42+.05,l*.42,abs(fract(y)-.5));
+    float cm=smoothstep(.62,.18,length((vUv-.5)*vec2(1.,1.15))+(fbm(vUv*4.+vseed+time*.04)-.5)*.3);
+    c=mix(vec3(line)*.7*(gain*.8), c, clamp(cm+hover*.6,0.,1.));
+  }
+  // borde: en las sueltas es orgánico (se deshace), en las enmarcadas apenas se marca
+  float ed=min(min(vUv.x,1.-vUv.x),min(vUv.y,1.-vUv.y));
+  ed+=(fbm(vUv*vec2(7.,5.)+vseed)-.5)*soft*bare;
+  float e=smoothstep(0.,soft,ed);
   gl_FragColor=vec4(c*mix(.75+.25*e, e, bare)*fade,1.);
 }`;
-function frameGeo(w, h, B, depth){
-  const s = new THREE.Shape(); s.moveTo(-w/2-B,-h/2-B); s.lineTo(w/2+B,-h/2-B); s.lineTo(w/2+B,h/2+B); s.lineTo(-w/2-B,h/2+B); s.closePath();
-  const hole = new THREE.Path(); hole.moveTo(-w/2,-h/2); hole.lineTo(-w/2,h/2); hole.lineTo(w/2,h/2); hole.lineTo(w/2,-h/2); hole.closePath(); s.holes.push(hole);
+// recuadros imperfectos: cada esquina corrida un poco, nunca un rectángulo perfecto
+function warpPlane(J){
+  const g = new THREE.PlaneGeometry(1,1,10,10), p = g.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const u = p.getX(i)+.5, v = p.getY(i)+.5;
+    p.setXY(i, p.getX(i) + (J[0].x*(1-u)+J[1].x*u)*(1-v) + (J[3].x*(1-u)+J[2].x*u)*v,
+               p.getY(i) + (J[0].y*(1-u)+J[1].y*u)*(1-v) + (J[3].y*(1-u)+J[2].y*u)*v);
+  }
+  return g;
+}
+const CORN = [[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
+function frameGeo(w, h, B, depth, J, Kb){
+  const c = CORN.map(([x,y],i)=>[(x+J[i].x)*w, (y+J[i].y)*h]);
+  const s = new THREE.Shape();
+  c.forEach(([x,y],i)=>{ const ox = x + CORN[i][0]*2*B*Kb[i], oy = y + CORN[i][1]*2*B*Kb[(i+1)%4]; i ? s.lineTo(ox,oy) : s.moveTo(ox,oy); }); s.closePath();
+  const hole = new THREE.Path(); [...c].reverse().forEach(([x,y],i)=>{ i ? hole.lineTo(x,y) : hole.moveTo(x,y); }); hole.closePath(); s.holes.push(hole);
   const g = new THREE.ExtrudeGeometry(s, {depth, bevelEnabled:true, bevelThickness:B*.3, bevelSize:B*.3, bevelSegments:5, curveSegments:4});
   g.translate(0,0,-depth/2); return g;
 }
 let hovered = null, flash = 0;
 const items = [], pickables = [];
 const wireMat = new THREE.LineBasicMaterial({color:0x6a6a6a, transparent:true, opacity:.5});
-const tmpA = new V3();
+const tmpA = new V3(), SWAY = new V3();
 
 function makeScreen(el, kind){
   const style = el.dataset.frame || 'wire', glitch = parseFloat(el.dataset.glitch ?? '.1');
+  const tilt = !!el.dataset.tilt, amp = style === 'bare' ? .03 : .022;
+  const J = [0,1,2,3].map(()=> new V2((Math.random()*2-1)*amp, (Math.random()*2-1)*amp));   // esquinas corridas
+  const Kb = [0,1,2,3].map(()=> .6 + Math.random()*.9);                                       // marco de grosor desparejo
   const group = new THREE.Group(); scene.add(group);
   const U = {map:{value:null}, mapB:{value:null}, time:GU.time, vel:GU.vel, hover:{value:0}, rt:{value:9}, rc:{value:new V2(.5,.5)},
     planeA:{value:1}, texA:{value:16/9}, texB:{value:1}, distort:{value:kind==='video'?.1:.25}, glitch:{value:glitch}, isImg:{value:kind==='covers'?1:0},
-    fade:{value:0}, prog:{value:0}, gain:{value:parseFloat(el.dataset.gain || '1.25')}, soft:{value:style==='bare'?.16:.015}, bare:{value:style==='bare'?1:0}};
+    fade:{value:0}, prog:{value:0}, gain:{value:parseFloat(el.dataset.gain || '1.2')}, soft:{value:style==='bare'?.2:.015}, bare:{value:style==='bare'?1:0},
+    vseed:{value:Math.random()*10}, look:{value:el.dataset.look === 'engrave' ? 1 : 0}};
+  const geo = warpPlane(J);
   let video = null, vtex = null;
   if(kind === 'video'){
     U.map.value = el.dataset.poster ? img(el.dataset.poster) : null;
@@ -711,13 +753,13 @@ function makeScreen(el, kind){
     video.addEventListener('playing', ()=>{ U.map.value = vtex; });
   } else if(kind === 'image'){ U.map.value = img(el.dataset.src); }
   U.mapB.value = U.map.value;
-  const screen = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.ShaderMaterial({uniforms:U, vertexShader:VERT_UV, fragmentShader:SCREEN_FRAG, transparent:style==='bare', depthWrite:style!=='bare', blending:style==='bare'?THREE.AdditiveBlending:THREE.NormalBlending}));
+  const screen = new THREE.Mesh(geo, new THREE.ShaderMaterial({uniforms:U, vertexShader:VERT_UV, fragmentShader:SCREEN_FRAG, transparent:style==='bare', depthWrite:style!=='bare', blending:style==='bare'?THREE.AdditiveBlending:THREE.NormalBlending}));
   if(style === 'bare') screen.renderOrder = 4;
   group.add(screen);
-  const item = {el, kind, style, group, screen, U, video, vtex, last:{w:0,h:0}, R:{}, ropes:null, wires:null, eyes:[]};
+  const item = {el, kind, style, group, screen, U, video, vtex, last:{w:0,h:0}, R:{}, ropes:null, wires:null, eyes:[], rot:{x:0,y:0}};
   let border, back, glass;
   if(style !== 'bare'){
-    glass = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.MeshPhysicalMaterial({color:0x000000, roughness:.05, envMapIntensity:1.1, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
+    glass = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({color:0x000000, roughness:.05, envMapIntensity:1.1, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
     glass.position.z = .03; group.add(glass);
     border = new THREE.Mesh(new THREE.BufferGeometry(), style === 'chain' ? gunMat : matteMat); border.receiveShadow = true; group.add(border);
     back = new THREE.Mesh(new THREE.BoxGeometry(1,1,.12), new THREE.MeshStandardMaterial({color:0x060606, roughness:.9})); back.position.z = -.12; group.add(back);
@@ -739,7 +781,15 @@ function makeScreen(el, kind){
     }
     if(!r.vis) return;
     group.position.set(r.x, r.y, 0);
-    group.rotation.x = style === 'bare' ? 0 : THREE.MathUtils.clamp(-GU.vel.value*.45, -.16, .16);
+    // leve 3D: las fotos con data-tilt se inclinan hacia el cursor cuando está cerca
+    let tx = 0, ty = 0;
+    if(tilt){
+      const dx = (GU.mouseW.value.x - r.x)/r.w, dy = (GU.mouseW.value.y - r.y)/r.h, near = Math.max(0, 1 - Math.hypot(dx,dy)/1.3);
+      ty = THREE.MathUtils.clamp(dx,-1,1)*.24*near; tx = -THREE.MathUtils.clamp(dy,-1,1)*.18*near;
+    }
+    item.rot.x += (tx - item.rot.x)*.06; item.rot.y += (ty - item.rot.y)*.06;
+    group.rotation.x = (style === 'bare' ? 0 : THREE.MathUtils.clamp(-GU.vel.value*.45, -.16, .16)) + item.rot.x;
+    group.rotation.y = item.rot.y;
     screen.scale.set(r.w, r.h, 1);
     U.planeA.value = r.w/r.h;
     const a = texAspect(U.map.value); if(a) U.texA.value = a;
@@ -749,16 +799,21 @@ function makeScreen(el, kind){
     U.rt.value += dt;
     if(style !== 'bare'){
       glass.scale.set(r.w, r.h, 1); back.scale.set(r.w+B, r.h+B, 1);
-      if(Math.abs(r.w-item.last.w) > .01 || Math.abs(r.h-item.last.h) > .01){ border.geometry.dispose(); border.geometry = frameGeo(r.w, r.h, B, depth); item.last.w = r.w; item.last.h = r.h; }
-      const ex = r.w/2 - Math.min(.3, r.w*.12), ey = r.h/2 + B + (style==='chain'?.07:.025);
-      item.eyes[0].position.set(-ex, ey, 0); item.eyes[1].position.set(ex, ey, 0);
+      if(Math.abs(r.w-item.last.w) > .01 || Math.abs(r.h-item.last.h) > .01){ border.geometry.dispose(); border.geometry = frameGeo(r.w, r.h, B, depth, J, Kb); item.last.w = r.w; item.last.h = r.h; }
+      // ojales sobre el borde de arriba (que ya no es recto)
+      const tl = [(-.5+J[3].x)*r.w, (.5+J[3].y)*r.h], tr = [(.5+J[2].x)*r.w, (.5+J[2].y)*r.h], f = Math.min(.3, r.w*.12)/r.w;
+      const lift = 2*B*Math.max(Kb[3],Kb[0]) + (style==='chain'?.07:.025);
+      item.eyes[0].position.set(tl[0]+(tr[0]-tl[0])*f, tl[1]+(tr[1]-tl[1])*f + lift, 0);
+      item.eyes[1].position.set(tr[0]+(tl[0]-tr[0])*f, tr[1]+(tl[1]-tr[1])*f + lift, 0);
       group.updateMatrixWorld();
+      const T = GU.time.value;
       if(item.ropes) item.ropes.forEach((rp,i)=>{
         const eye = group.localToWorld(tmpA.copy(item.eyes[i].position));
-        P[rp.ids[rp.ids.length-1]].pin.copy(eye); P[rp.ids[0]].pin.copy(eye).add(rp.off);
+        P[rp.ids[rp.ids.length-1]].pin.copy(eye);
+        P[rp.ids[0]].pin.copy(eye).add(rp.off).add(SWAY.set(Math.sin(T*.33+i*2.1)*1.3, 0, Math.cos(T*.27+i)*.9));   // el anclaje se hamaca
       });
       if(item.wires){
-        const pa = item.wires.geometry.attributes.position, sway = GU.vel.value*1.5;
+        const pa = item.wires.geometry.attributes.position, sway = GU.vel.value*1.5 + Math.sin(T*.4 + U.vseed.value)*.5;
         for(let i=0;i<2;i++){ const e = group.localToWorld(tmpA.copy(item.eyes[i].position)); pa.setXYZ(i*2, e.x, e.y, e.z); pa.setXYZ(i*2+1, e.x*1.02 + sway, e.y + 14, e.z - 4); }
         pa.needsUpdate = true;
       }
@@ -833,62 +888,74 @@ async function makeTitle(el){
         float bx=(letter-.5)*pw + sin(time*.2+letter*4.)*.2;
         float sway=sin(s*3.+time*.35+seed*6.28)*.35*s + sin(s*8.+time*.9+seed*30.)*.06*s;
         float x=mix(x0, bx+(x0-bx)*.55, smoothstep(0.,.75,s)) + sway*(1.+seed) + vel*s*s*1.2;
+        x+=sin(s*2.2+time*.18+seed*12.)*s*s*pw*.06;                                 // al final los hilos se mezclan entre sí
         vec3 p=center+vec3(x, y0-s*len, (seed-.5)*.6*s);
         vec2 dd=p.xy-mouseW; float dl=length(dd);
         p.xy+=dd/max(dl,1e-3)*smoothstep(1.3,0.,dl)*.5*smoothstep(0.,.3,s);
         vec4 cp=projectionMatrix*viewMatrix*vec4(p,1.);
         float f=hoverBlur(cp, seed+s, time);
-        vA=pow(1.-s,1.3)*(.45+.55*seed)*smoothstep(0.,.04,s)*(1.-f*.55);
+        vA=pow(1.-s,.85)*(.45+.55*seed)*smoothstep(0.,.04,s)*(1.-f*.55);   // la estela dura más y se apaga de a poco
         gl_Position=cp;
       }`,
-    fragmentShader:`uniform float figMul; varying float vA; void main(){ gl_FragColor=vec4(vec3(vA*.085*min(figMul,1.6)),1.); }`
+    fragmentShader:`uniform float figMul; varying float vA; void main(){ gl_FragColor=vec4(vec3(vA*.07*min(figMul,1.6)),1.); }`
   }));
   strands.frustumCulled = false; strands.renderOrder = 29; scene.add(strands);
-  const R0 = {};
+  const R0 = {}, heroEl = el.closest('.hero');
   items.push({update(){
     rectW(el, R0); letters.visible = strands.visible = R0.vis; if(!R0.vis) return;
     letters.position.set(R0.x, R0.y, 0); letters.scale.set(R0.w, R0.h, 1);
     TU.planeA.value = R0.w/R0.h;
-    SU.center.value.set(R0.x, R0.y, 0); SU.pw.value = R0.w; SU.ph.value = R0.h; SU.len.value = Math.max(R0.h*2.2, 3.4);
+    SU.center.value.set(R0.x, R0.y, 0); SU.pw.value = R0.w; SU.ph.value = R0.h; // la estela cae hasta el final de la portada (en celular, casi toda la pantalla) y no invade el manifiesto
+    const hr = heroEl.getBoundingClientRect(), tr = el.getBoundingClientRect();
+    SU.len.value = Math.max(R0.h*.8, (hr.bottom - (tr.top + tr.height/2))*PXW*.92);
     TU.mouseUv.value.set((GU.mouseW.value.x-(R0.x-R0.w/2))/R0.w, (GU.mouseW.value.y-(R0.y-R0.h/2))/R0.h);
   }});
 }
 
 // ================= foto en medio tono fino (portada). Sin glitch: el cursor revela la foto =================
-function makeHalftone(el){
+// foto de portada (la de la web actual), casi oculta: relieve 3D por luminancia, se inclina con el cursor,
+// dibujada en líneas finas tipo grabado; el cursor revela la foto real. Sin glitch.
+function makeRelief(el){
   const tex = img(el.dataset.src);
-  const U = {map:{value:tex}, time:GU.time, planeA:{value:1}, texA:{value:1.5}, mouseUv:{value:new V2(9,9)}, cells:{value:200}, light:GU.light};
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.ShaderMaterial({
-    uniforms:U, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexShader:VERT_UV,
+  const U = {map:{value:tex}, time:GU.time, planeA:{value:1}, texA:{value:1.5}, mouseUv:{value:new V2(9,9)}, lines:{value:180}, light:GU.light, depth:{value:.6}};
+  const COVER = `vec2 cover(vec2 uv){ vec2 s = planeA>texA ? vec2(1., texA/planeA) : vec2(planeA/texA, 1.); return (uv-.5)*s+.5; }`;
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1,1,180,110), new THREE.ShaderMaterial({
+    uniforms:U, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:NOISE+`uniform sampler2D map; uniform float planeA,texA,depth,time; varying vec2 vUv; varying float vL; `+COVER+`
+      void main(){ vUv=uv; float l=lum(texture2D(map,cover(uv)).rgb); vL=l;
+        vec3 p=position; p.z+=l*depth + sin(uv.x*6.+time*.3)*.02;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.); }`,
     fragmentShader:NOISE+`
-      uniform sampler2D map; uniform float time,planeA,texA,cells,light; uniform vec2 mouseUv; varying vec2 vUv;
-      vec2 cover(vec2 uv){ vec2 s = planeA>texA ? vec2(1., texA/planeA) : vec2(planeA/texA, 1.); return (uv-.5)*s+.5; }
+      uniform sampler2D map; uniform float time,planeA,texA,lines,light; uniform vec2 mouseUv; varying vec2 vUv; varying float vL; `+COVER+`
       void main(){
-        vec2 uv=vUv, d=uv-mouseUv; d.x*=planeA; float r=length(d);
-        vec2 g=uv*vec2(cells*planeA,cells); vec2 f=fract(g)-.5; vec2 su=(floor(g)+.5)/vec2(cells*planeA,cells);
-        float l=pow(smoothstep(.02,.85,lum(texture2D(map,cover(su)).rgb)),.8);
-        float dt=smoothstep(l*.68,l*.68-.14,length(f));
-        float fine=smoothstep(.02,.9,lum(texture2D(map,cover(uv)).rgb));
-        float c=max(dt*.7, fine*.18);
-        c=mix(c, fine*.95, smoothstep(.2,0.,r)*.9);
-        float edge=smoothstep(0.,.08,vUv.x)*smoothstep(0.,.08,1.-vUv.x)*smoothstep(0.,.3,vUv.y)*smoothstep(0.,.08,1.-vUv.y);
-        gl_FragColor=vec4(vec3(c*edge*(.6+.4*light)),1.);
+        vec2 d=vUv-mouseUv; d.x*=planeA; float r=length(d);
+        float l=pow(smoothstep(.02,.9,vL),.85);
+        float y=vUv.y*lines+sin(vUv.x*9.+time*.2)*.3+l*.8;
+        float line=smoothstep(l*.45+.05,l*.45,abs(fract(y)-.5));          // líneas más gruesas donde hay luz
+        float fine=smoothstep(.02,.9,lum(texture2D(map,cover(vUv)).rgb));
+        float c=line*.5*l + fine*.06;
+        c=mix(c, fine*.9, smoothstep(.22,0.,r)*.9);                       // el cursor revela la foto
+        float edge=smoothstep(0.,.18,vUv.x)*smoothstep(0.,.18,1.-vUv.x)*smoothstep(0.,.35,vUv.y)*smoothstep(0.,.12,1.-vUv.y);
+        gl_FragColor=vec4(vec3(c*edge*(.55+.45*light)),1.);
       }`
   }));
   mesh.renderOrder = 3; scene.add(mesh);
-  const R0 = {};
+  const R0 = {}, rot = {x:0, y:0};
   items.push({update(){
     rectW(el, R0); mesh.visible = R0.vis; if(!R0.vis) return;
-    mesh.position.set(R0.x, R0.y, -.4); mesh.scale.set(R0.w, R0.h, 1);
+    mesh.position.set(R0.x, R0.y, -1.2); mesh.scale.set(R0.w*1.08, R0.h*1.08, 1);
     U.planeA.value = R0.w/R0.h; const a = texAspect(tex); if(a) U.texA.value = a;
-    U.cells.value = Math.round(Math.min(260, el.clientHeight/4.5));
+    U.lines.value = Math.round(Math.min(240, el.clientHeight/3.6));
     U.mouseUv.value.set((GU.mouseW.value.x-(R0.x-R0.w/2))/R0.w, (GU.mouseW.value.y-(R0.y-R0.h/2))/R0.h);
+    const mx = GU.mouseW.value.x > 90 ? 0 : GU.mouseW.value.x/(R0.w/2), my = GU.mouseW.value.y > 90 ? 0 : GU.mouseW.value.y/(R0.h/2);
+    rot.y += (mx*.12 - rot.y)*.05; rot.x += (-my*.08 - rot.x)*.05;
+    mesh.rotation.set(rot.x, rot.y, 0);
   }});
 }
 
 // ================= varillas colgantes (Kepes), detrás de booking =================
 function makeKepes(el){
-  const N = 54, pos = [], ang = [], prm = [];
+  const N = 84, pos = [], ang = [], prm = [];
   for(let i=0;i<N;i++){
     const a = Math.random()*6.2832, p4 = [.55+Math.random()*.45, Math.random(), Math.random(), Math.random()];
     pos.push(0,0,0, 0,1,0, 0,1,0, 1,1,1);
@@ -912,7 +979,7 @@ function makeKepes(el){
         vA=(.2+.8*smoothstep(-.4,.6,sin(a)))*(.3+.7*s)*(1.-f*.6);
         gl_Position=cp;
       }`,
-    fragmentShader:`uniform float figMul,light; varying float vA; void main(){ gl_FragColor=vec4(vec3(vA*.45*min(figMul,1.6)*(.6+.4*light)),1.); }`
+    fragmentShader:`uniform float figMul,light; varying float vA; void main(){ gl_FragColor=vec4(vec3(vA*.85*min(figMul,1.6)*(.6+.4*light)),1.); }`
   }));
   lines.frustumCulled = false; lines.renderOrder = 27; scene.add(lines);
   const R0 = {};
@@ -930,7 +997,7 @@ bgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), new THREE.ShaderMateria
       vec2 p=vUv*vec2(res.x/res.y,1.)*1.2;
       vec2 q=vec2(fbm(p+vec2(time*.02,scroll*.15)),fbm(p+vec2(4.2,-time*.015+scroll*.1)));
       float b=smoothstep(.5,.9,fbm(p*.8+q*1.8+vec2(0.,scroll*.12)));
-      gl_FragColor=vec4(vec3(b*.03*light),1.);
+      gl_FragColor=vec4(vec3(0.),1.);   // fondo negro puro
     }`
 })));
 
@@ -950,7 +1017,7 @@ const fogMat = (seed, dens, tint)=> new THREE.ShaderMaterial({
       gl_FragColor=vec4(vec3(tint*f*(.3+1.1*low)*edge*dens*fogMul*(1.-m*.92)),1.);
     }`
 });
-[[-1.6,1.1,.9,.06],[-4.5,2.3,1.0,.05],[-9,3.7,1.3,.045],[2.4,5.2,.4,.03]].forEach(([z,seed,d,t],i)=>{
+[[-1.6,1.1,.9,.04],[-4.5,2.3,1.0,.034],[-9,3.7,1.3,.03],[2.4,5.2,.4,.02]].forEach(([z,seed,d,t],i)=>{
   const m = new THREE.Mesh(new THREE.PlaneGeometry(50, 30), fogMat(seed, d, t)); m.position.set(0,0,z); m.renderOrder = 10+i; scene.add(m);
 });
 
@@ -1006,9 +1073,11 @@ const sigil = (()=>{
 
 // ================= cadenas de fondo (parallax) =================
 const bgPins = [];
+// cada anclaje se mueve solo (vaivén marcado): las colgantes se hamacan, las horizontales suben y bajan
 function bgChain(a, b, s, par, slack, free=false){
   const ids = addChain(rope(a, b, Math.round(a.distanceTo(b)*slack/(PITCH*s)), !free), s, false);
-  bgPins.push({id:ids[0], base:a.clone(), par}); if(!free) bgPins.push({id:ids[ids.length-1], base:b.clone(), par});
+  const anim = ()=>({f:.16+Math.random()*.2, ph:Math.random()*6.28, ax:free ? 2.2 : .9, ay:free ? .4 : 1.1, az:free ? 1.4 : .5});
+  bgPins.push({id:ids[0], base:a.clone(), par, ...anim()}); if(!free) bgPins.push({id:ids[ids.length-1], base:b.clone(), par, ...anim()});
 }
 bgChain(new V3(-21, 4, -8), new V3(21, 2.4, -8), 2.5, .5, 1.045);
 bgChain(new V3(-22, -18, -12), new V3(22, -21, -12), 2.2, .5, 1.06);
@@ -1044,11 +1113,12 @@ const finalPass = new ShaderPass({
     void main(){
       vec2 c=vUv-.5; float d=dot(c,c); vec2 off=c*d*(.02+flash*.05+abs(vel)*.08);
       vec3 col=vec3(texture2D(tDiffuse,vUv+off).r, texture2D(tDiffuse,vUv).g, texture2D(tDiffuse,vUv-off).b);
-      col*=smoothstep(1.1,.2,length(c)*1.25);
+      col*=smoothstep(1.05,.15,length(c)*1.3);
       float l=dot(col,vec3(.299,.587,.114));
-      vec2 fp=vUv*res;
-      float g=(h(fp+fract(time*.731)*vec2(997.,613.)) + h(fp*1.37+fract(time*.419)*vec2(331.,877.)))*.5;  // grano fino, cambia en cada cuadro
-      col+=(g-.5)*.11*grain*(.35+.65*(1.-l));
+      vec2 fp=gl_FragCoord.xy;
+      float g=h(fp+fract(time*.731)*vec2(997.,613.));                 // grano de 1 píxel de pantalla, cambia en cada cuadro
+      col+=(g-.5)*.07*grain*(.25+.75*l);                             // sobre las luces, no ensucia el negro
+      col=max(col-.006,0.);                                          // negros bien negros
       gl_FragColor=vec4(col+flash*.05,1.);
     }`
 });
@@ -1061,7 +1131,7 @@ document.querySelectorAll('[data-gl]').forEach(el=>{
   if(k === 'video'){ makeScreen(el, 'video'); if(!manEl && el.closest('#manifiesto')) manEl = el; }
   else if(k === 'image') makeScreen(el, 'image');
   else if(k === 'covers'){ coverItem = makeScreen(el, 'covers'); coverItem.U.map.value = COVERS[0]; coverItem.U.mapB.value = COVERS[0]; }
-  else if(k === 'halftone') makeHalftone(el);
+  else if(k === 'relief') makeRelief(el);
   else if(k === 'kepes') makeKepes(el);
 });
 const titleReady = makeTitle(document.querySelector('[data-gl="title"]'));
@@ -1115,7 +1185,7 @@ document.querySelector('#tracks a').classList.add('on');
 function ctl(id, fn){ const el = document.getElementById(id), out = document.getElementById('v'+id.slice(1)); el.addEventListener('input', ()=>{ out.textContent = el.value; fn(el.value/100); }); }
 ctl('cGrain', v=>{ finalPass.uniforms.grain.value = v; });
 ctl('cFog', v=>{ GU.fogMul.value = v; scene.fog.density = FOG_D*(.3+.7*v); });
-ctl('cLight', v=>{ GU.light.value = v; key.intensity = 70*v; rim.intensity = 140*v; top.intensity = 90*v; renderer.toneMappingExposure = .5 + .22*v; });
+ctl('cLight', v=>{ GU.light.value = v; key.intensity = 70*v; rim.intensity = 140*v; top.intensity = 90*v; renderer.toneMappingExposure = .42 + .18*v; });
 ctl('cFig', v=>{ GU.figMul.value = v; });
 const rack = document.getElementById('rack'), rackMin = document.getElementById('rackMin');
 rackMin.addEventListener('click', ()=>{ const c = rack.classList.toggle('closed'); rackMin.textContent = c ? '+' : '—'; rackMin.setAttribute('aria-expanded', !c); });
@@ -1126,19 +1196,21 @@ function step(t){
   const wm = reduce ? 0 : 1;
   for(const q of P){
     if(q.pin){ q.p.copy(q.pin); q.o.copy(q.pin); continue; }
+    if(q.s) continue;                                             // cadena fuera de pantalla: no se calcula
     const vx = (q.p.x-q.o.x)*.982, vy = (q.p.y-q.o.y)*.982, vz = (q.p.z-q.o.z)*.982;
     q.o.copy(q.p);
-    const wind = (Math.sin(t*.35 + q.p.y*.4 + q.p.z*.2)*.5 + Math.sin(t*1.3 + q.p.x)*.2)*.18*wm;
+    const gust = .22 + .2*Math.max(0, Math.sin(t*.13));          // ráfagas
+    const wind = (Math.sin(t*.35 + q.p.y*.4 + q.p.z*.2)*.5 + Math.sin(t*1.3 + q.p.x)*.2)*gust*wm;
     q.p.x += vx + wind*DT*DT; q.p.y += vy + G*DT*DT; q.p.z += vz + wind*.6*DT*DT;
   }
   if(mouse.active && !reduce){
-    for(const q of P){ if(q.pin) continue; const d = screenDist(q.p); if(d < .14){ tmpB.copy(q.p).project(camera);
+    for(const q of P){ if(q.pin || q.s) continue; const d = screenDist(q.p); if(d < .14){ tmpB.copy(q.p).project(camera);
       const dx = tmpB.x-mouse.x, dy = tmpB.y-mouse.y, l = Math.hypot(dx,dy)||1, k = (1-d/.14)*.02*(1-q.p.z*.08);
       q.p.x += dx/l*k*3; q.p.y += dy/l*k; } }
   }
   for(let it=0; it<ITER; it++){
     for(const [a,b,len] of C){
-      const A = P[a], Bp = P[b], w = A.w + Bp.w; if(!w) continue;
+      const A = P[a], Bp = P[b], w = A.w + Bp.w; if(!w || (A.s && Bp.s) || (A.s && !Bp.w) || (Bp.s && !A.w)) continue;
       const dx = Bp.p.x-A.p.x, dy = Bp.p.y-A.p.y, dz = Bp.p.z-A.p.z, d = Math.hypot(dx,dy,dz)||1e-6;
       const k = (d-len)/d/w;
       A.p.x += dx*k*A.w; A.p.y += dy*k*A.w; A.p.z += dz*k*A.w;
@@ -1148,7 +1220,8 @@ function step(t){
 }
 const M = new THREE.Matrix4(), X = new V3(), Y = new V3(), Z = new V3(), x2 = new V3(), z2 = new V3(), HINT = new V3(0,0,1), ALT = new V3(1,0,0), MID = new V3();
 function drawChains(){
-  for(const {ids, scale, mesh, twist} of chains){
+  for(const {ids, scale, mesh, twist, active} of chains){
+    mesh.visible = active; if(!active) continue;
     for(let k=0;k<ids.length-1;k++){
       const a = P[ids[k]].p, b = P[ids[k+1]].p;
       Y.subVectors(b,a).normalize(); X.crossVectors(Y, Math.abs(Y.z) > .9 ? ALT : HINT).normalize(); Z.crossVectors(X, Y);
@@ -1159,6 +1232,25 @@ function drawChains(){
       mesh.setMatrixAt(k, M);
     }
     mesh.instanceMatrix.needsUpdate = true;
+  }
+}
+
+// cada cadena se despierta sólo si algún eslabón cae en pantalla. Dormida, se traslada entera con su anclaje.
+const SHIFT = new V3();
+function wakeChains(){
+  for(const ch of chains){
+    const ref = P[ch.ids[0]].pin || P[ch.ids[0]].p;
+    if(!ch.active){
+      SHIFT.subVectors(ref, ch.last);
+      for(const id of ch.ids){ const q = P[id]; if(!q.pin){ q.p.add(SHIFT); q.o.add(SHIFT); } }
+    }
+    ch.last.copy(ref);
+    let vis = false;
+    for(let k=0; k<ch.ids.length; k+=4){
+      tmpB.copy(P[ch.ids[k]].p).project(camera);
+      if(tmpB.z < 1 && Math.abs(tmpB.x) < 1.3 && Math.abs(tmpB.y) < 1.3){ vis = true; break; }
+    }
+    if(vis !== ch.active){ ch.active = vis; for(const id of ch.ids) P[id].s = !vis; }
   }
 }
 
@@ -1174,8 +1266,12 @@ function updateScene(dt){
   if(mouse.active){ mN.x += (mouse.x - mN.x)*.18; mN.y += (mouse.y - mN.y)*.18; } else mN.set(9,9);
   GU.mouseN.value.copy(mN);
 
-  for(const b of bgPins){ P[b.id].pin.set(b.base.x + par.x*.6, b.base.y + scrollW*b.par, b.base.z); }
+  for(const b of bgPins){
+    const w = t*b.f + b.ph;
+    P[b.id].pin.set(b.base.x + par.x*.6 + Math.sin(w)*b.ax, b.base.y + scrollW*b.par + Math.cos(w*.71)*b.ay, b.base.z + Math.sin(w*.53)*b.az);
+  }
   for(const it of items) it.update(dt);
+  wakeChains();
   while(acc >= DT){ step(t); acc -= DT; }
   drawChains();
 
@@ -1198,7 +1294,7 @@ function updateScene(dt){
     curLabel.textContent = hovered ? (hovered.el.dataset.label || '') : '';
   }
 
-  tg.fillStyle = 'rgba(0,0,0,.035)'; tg.fillRect(0,0,256,256);
+  tg.fillStyle = 'rgba(0,0,0,.014)'; tg.fillRect(0,0,256,256);   // la estela del cursor queda más y se va difuminando
   if(mouse.active){
     const x = (mouse.x*.5+.5)*256, y = (mouse.y*.5+.5)*256;
     const px = mouse.px<0?x:mouse.px, py = mouse.py<0?y:mouse.py, n = Math.max(1, Math.ceil(Math.hypot(x-px,y-py)/4));
