@@ -81,7 +81,7 @@ main,footer{position:relative;z-index:10}
 @media (max-width:640px){
   .hero .meta{align-items:flex-start;text-align:left}.next{display:none}
   /* en celular el PVR no entra entero: más grande, al medio, y la estela cae hasta abajo */
-  .hero .title{width:175%;margin:-16vh 0 0 -37.5%}
+  .hero .title{width:100%;margin:-12vh auto 0}            /* el PVR entra completo y centrado en el ancho del celular */
 }
 
 /* manifiesto */
@@ -735,6 +735,73 @@ function frameGeo(w, h, B, depth, J, Kb){
   const g = new THREE.ExtrudeGeometry(s, {depth, bevelEnabled:true, bevelThickness:B*.3, bevelSize:B*.3, bevelSegments:5, curveSegments:4});
   g.translate(0,0,-depth/2); return g;
 }
+// ================= adornos neotribales de cromo (sólo en los marcos con cadenas) =================
+// Se dibuja el relieve en 2D (trazos que terminan en aguja, ojales, garras, hojas) y un shader lo vuelve cromo.
+// El dibujo ocupa el borde: la pantalla queda en el centro (10.5% de margen a los lados, 12% arriba y abajo).
+const ORN_MX = .79, ORN_MY = .76, ornCache = {};
+function ornamentTexture(aspect){
+  const key = aspect.toFixed(1); if(ornCache[key]) return ornCache[key];
+  const W = 1600, H = Math.round(W/aspect), s = Math.min(1, H/1000), c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0,0,W,H); g.fillStyle = '#fff';
+  const WS = 1.9;
+  const bez = (p,t)=>{ const u = 1-t; return [u*u*u*p[0][0]+3*u*u*t*p[1][0]+3*u*t*t*p[2][0]+t*t*t*p[3][0], u*u*u*p[0][1]+3*u*u*t*p[1][1]+3*u*t*t*p[2][1]+t*t*t*p[3][1]]; };
+  const taper = (p, w0, w1, n=300, ease=1.3)=>{ const tip = w1*.2; for(let i=0;i<=n;i++){ const t = i/n, [x,y] = bez(p,t), w = (tip + (w0-tip)*Math.pow(1-t,ease))*WS; g.beginPath(); g.arc(x,y,Math.max(.25,w/2),0,6.284); g.fill(); } };
+  const ring = (cx,cy,rx,ry,rot,w)=>{ for(let i=0;i<=360;i++){ const a = i/360*6.284, x = cx + Math.cos(a)*rx*Math.cos(rot) - Math.sin(a)*ry*Math.sin(rot), y = cy + Math.cos(a)*rx*Math.sin(rot) + Math.sin(a)*ry*Math.cos(rot); const ww = w*WS*(.6+.4*Math.sin(a+1)); g.beginPath(); g.arc(x,y,ww/2,0,6.284); g.fill(); } };
+  const thorn2 = (x,y,dx,dy,bend,w)=>taper([[x,y],[x+dx*.35+bend,y+dy*.35],[x+dx*.7+bend*.6,y+dy*.7],[x+dx*1.35,y+dy*1.35]], w, .3, 110, 1.7);
+  let seed = 77; const rnd = ()=> (seed = (seed*16807)%2147483647)/2147483647;
+  function corner(){
+    g.save(); g.scale(s, s);
+    const top = [[70,190],[230,40],[470,110],[820,46]], side = [[190,70],[40,230],[110,450],[46,640]];
+    taper(top, 20, 1.4); taper(side, 20, 1.4);
+    taper([[110,120],[300,150],[420,60],[600,120]], 7, 1.2); taper([[120,110],[150,300],[60,420],[120,560]], 7, 1.2);
+    ring(175,170,78,48,-.65,12); ring(175,170,34,20,-.65,6); ring(330,78,40,18,-.15,5); ring(78,330,18,40,-.15,5);
+    for(let i=0;i<9;i++){ const [x,y] = bez(top, .12+i*.09); thorn2(x,y,(rnd()-.5)*40, -(30+rnd()*70)*(i%2?1:-.7), (rnd()-.5)*30, 7); }
+    for(let i=0;i<8;i++){ const [x,y] = bez(side, .12+i*.1); thorn2(x,y,-(30+rnd()*70)*(i%2?1:-.7),(rnd()-.5)*40,(rnd()-.5)*30, 7); }
+    taper([[24,760],[210,700],[300,560],[200,470]], 22, 1.2, 300, 1.6); taper([[40,800],[170,770],[250,700],[330,700]], 10, 1, 200);
+    taper([[60,520],[180,500],[330,420],[400,330]], 3, 2);
+    taper([[0,360],[110,330],[240,280],[430,190]], 15, .2, 360, 2.2); taper([[300,24],[420,70],[520,160],[560,300]], 9, .2, 260, 2);
+    taper([[20,250],[80,236],[130,250],[180,300]], 6, .2, 140, 1.8);
+    g.restore();
+  }
+  corner();
+  g.save(); g.translate(W,0); g.scale(-1,1); corner(); g.restore();
+  g.save(); g.translate(0,H); g.scale(1,-1); corner(); g.restore();
+  g.save(); g.translate(W,H); g.scale(-1,-1); corner(); g.restore();
+  const mask = g.getImageData(0,0,W,H).data;
+  const b = document.createElement('canvas'); b.width = W; b.height = H; const bg = b.getContext('2d');
+  bg.filter = 'blur(6px)'; bg.drawImage(c,0,0); bg.filter = 'none';
+  const hb = bg.getImageData(0,0,W,H).data, out = new Uint8Array(W*H*4);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){ const i = (y*W+x)*4, o = ((H-1-y)*W+x)*4; out[o] = hb[i]; out[o+1] = mask[i]; out[o+3] = 255; }
+  const tex = new THREE.DataTexture(out, W, H); tex.magFilter = tex.minFilter = THREE.LinearFilter; tex.needsUpdate = true;
+  return ornCache[key] = {tex, px:new V2(1/W, 1/H)};
+}
+function ornamentMaterial(){
+  return new THREE.ShaderMaterial({
+    uniforms:{hm:{value:null}, px:{value:new V2(1,1)}, mouse:{value:new V2(9,9)}, fade:{value:0}, time:GU.time, light:GU.light},
+    transparent:true, depthWrite:false, vertexShader:VERT_UV,
+    fragmentShader:NOISE+`
+      uniform sampler2D hm; uniform vec2 mouse,px; uniform float fade,time,light; varying vec2 vUv;
+      float H(vec2 uv){ return sqrt(texture2D(hm,uv).r); }
+      void main(){
+        float a=smoothstep(.25,.6,texture2D(hm,vUv).g)*fade; if(a<.01) discard;
+        vec2 e=px*2.;
+        float hx=H(vUv+vec2(e.x,0.))-H(vUv-vec2(e.x,0.)), hy=H(vUv+vec2(0.,e.y))-H(vUv-vec2(0.,e.y));
+        vec3 n=normalize(vec3(-hx*11.,-hy*11.,1.));
+        vec3 R=reflect(vec3(0.,0.,-1.),n);
+        float env=smoothstep(.07,.0,abs(R.y-.4))*1.05 + smoothstep(.05,.0,abs(R.y+.3))*.6 + smoothstep(.09,.0,abs(R.x-.55))*.5 + .03;
+        vec3 L=normalize(vec3((mouse-vUv)*vec2(1.6,1.)*1.3,.7)); if(mouse.x>5.) L=normalize(vec3(-.4,.6,.7));
+        float spec=pow(max(dot(R,L),0.),110.)*2. + pow(max(dot(n,L),0.),2.)*.1;
+        float fres=pow(1.-n.z,2.)*.5;
+        float ridge=smoothstep(.02,.0,length(vec2(hx,hy)))*smoothstep(.35,.7,H(vUv))*.35;
+        float c=env*.8+spec+fres+ridge;
+        float tarn=smoothstep(.35,.8,vn(vUv*vec2(16.,10.)+3.))*.45;
+        float pore=step(.93,h21(floor(vUv/px*.5)))*.3;
+        c=c*(1.-tarn)*(1.-pore);
+        gl_FragColor=vec4(vec3(c*1.7*(.65+.35*light)),a);
+      }`
+  });
+}
+
 let hovered = null, flash = 0;
 const items = [], pickables = [];
 const wireMat = new THREE.LineBasicMaterial({color:0x6a6a6a, transparent:true, opacity:.5});
@@ -773,6 +840,10 @@ function makeScreen(el, kind){
     item.eyes = [0,1].map(()=>{ const m = new THREE.Mesh(new THREE.TorusGeometry(style==='chain'?.09:.035, style==='chain'?.028:.01, 12, 28), chrome); m.rotation.y = Math.PI/2; group.add(m); return m; });
   }
   const B = style === 'chain' ? .13 : .04, depth = style === 'chain' ? .14 : .06;
+  if(style === 'chain'){                                            // adorno neotribal sobre el marco de metal
+    item.orn = new THREE.Mesh(new THREE.PlaneGeometry(1,1), ornamentMaterial());
+    item.orn.position.z = .09; item.orn.renderOrder = 8; group.add(item.orn); item.ornAspect = 0;
+  }
   screen.userData.item = item; pickables.push(screen);
   if(style === 'wire'){
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(12),3));
@@ -806,6 +877,18 @@ function makeScreen(el, kind){
     U.rt.value += dt;
     if(style !== 'bare'){
       glass.scale.set(r.w, r.h, 1); back.scale.set(r.w+B, r.h+B, 1);
+      if(item.orn){
+        const ow = r.w/ORN_MX, oh = r.h/ORN_MY, asp = ow/oh, OU = item.orn.material.uniforms;
+        // el dibujo del adorno se genera aparte (no traba el arranque); hasta que esté, no se muestra
+        if(Math.abs(asp - item.ornAspect) > .08 && !item.ornBusy){
+          item.ornBusy = true; const a = asp;
+          setTimeout(()=>{ const t = ornamentTexture(a); OU.hm.value = t.tex; OU.px.value.copy(t.px); item.ornAspect = a; item.ornBusy = false; }, item.ornAspect ? 0 : 1800);
+        }
+        item.orn.visible = !!OU.hm.value;
+        item.orn.scale.set(ow, oh, 1);
+        OU.fade.value = U.fade.value;
+        OU.mouse.value.set(GU.mouseW.value.x > 90 ? 9 : (GU.mouseW.value.x - r.x)/ow + .5, GU.mouseW.value.y > 90 ? 9 : (GU.mouseW.value.y - r.y)/oh + .5);
+      }
       if(Math.abs(r.w-item.last.w) > .01 || Math.abs(r.h-item.last.h) > .01){ border.geometry.dispose(); border.geometry = frameGeo(r.w, r.h, B, depth, J, Kb); item.last.w = r.w; item.last.h = r.h; }
       // ojales sobre el borde de arriba (que ya no es recto)
       const tl = [(-.5+J[3].x)*r.w, (.5+J[3].y)*r.h], tr = [(.5+J[2].x)*r.w, (.5+J[2].y)*r.h], f = Math.min(.3, r.w*.12)/r.w;
@@ -907,9 +990,41 @@ async function makeTitle(el){
     fragmentShader:`uniform float figMul; varying float vA; void main(){ gl_FragColor=vec4(vec3(vA*.07*min(figMul,1.6)),1.); }`
   }));
   strands.frustumCulled = false; strands.renderOrder = 29; scene.add(strands);
+  // partículas: titilan dentro de las letras y, en la mitad de abajo, se desprenden y caen con los hilos
+  const NP = touch ? 3500 : 7500, hu = [], pr = [];
+  for(let tries=0; hu.length < NP*2 && tries < 600000; tries++){
+    const px = x0 + Math.random()*bw, py = y0 + Math.random()*bh;
+    if(d[((py|0)*CW+(px|0))*4] < 128) continue;
+    const v = (y1-py)/bh; if(Math.random() > .3 + .7*(1-v)) continue;
+    hu.push((px-x0)/bw, v); pr.push(Math.random());
+  }
+  const pg = new THREE.BufferGeometry();
+  pg.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(hu.length/2*3), 3));
+  pg.setAttribute('hu', new THREE.Float32BufferAttribute(hu, 2)); pg.setAttribute('rnd', new THREE.Float32BufferAttribute(pr, 1));
+  const dust = new THREE.Points(pg, new THREE.ShaderMaterial({
+    uniforms:{...SU, pr:{value:renderer.getPixelRatio()}}, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:HOVER+`attribute vec2 hu; attribute float rnd; uniform vec3 center; uniform float pw,ph,len,time,vel,pr; uniform vec2 mouseW; varying float vA;
+      void main(){
+        float u=hu.x, v=hu.y;
+        float lower=smoothstep(.7,.0,v);
+        float fall=fract(time*(.025+.05*rnd)+rnd*7.)*lower;               // cae y vuelve a empezar
+        vec3 p=center+vec3((u-.5)*pw, (v-.5)*ph, 0.);
+        p.y-=fall*len*.6;
+        p.x+=sin(time*.5+rnd*30.)*.02 + sin(fall*6.+rnd*9.)*fall*.3 + vel*fall*fall;
+        p.z+=(rnd-.5)*.4*fall;
+        vec2 dd=p.xy-mouseW; float dl=length(dd); p.xy+=dd/max(dl,1e-3)*smoothstep(1.4,0.,dl)*.45;
+        vec4 cp=projectionMatrix*viewMatrix*vec4(p,1.);
+        float f=hoverBlur(cp, rnd, time);
+        vA=(.35+.65*rnd)*(.55+.45*sin(time*2.3+rnd*50.))*pow(1.-fall,1.5)*(1.-f*.4);
+        gl_PointSize=(1.+rnd*1.3+f*2.)*pr;
+        gl_Position=cp;
+      }`,
+    fragmentShader:`uniform float figMul; varying float vA; void main(){ float d=length(gl_PointCoord-.5); gl_FragColor=vec4(vec3(vA*.6*min(figMul,1.6)*smoothstep(.5,.12,d)),1.); }`
+  }));
+  dust.frustumCulled = false; dust.renderOrder = 31; scene.add(dust);
   const R0 = {}, heroEl = el.closest('.hero');
   items.push({update(){
-    rectW(el, R0); letters.visible = strands.visible = R0.vis; if(!R0.vis) return;
+    rectW(el, R0); letters.visible = strands.visible = dust.visible = R0.vis; if(!R0.vis) return;
     letters.position.set(R0.x, R0.y, 0); letters.scale.set(R0.w, R0.h, 1);
     TU.planeA.value = R0.w/R0.h;
     SU.center.value.set(R0.x, R0.y, 0); SU.pw.value = R0.w; SU.ph.value = R0.h; // la estela cae hasta el final de la portada (en celular, casi toda la pantalla) y no invade el manifiesto
