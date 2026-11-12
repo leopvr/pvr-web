@@ -1035,11 +1035,8 @@ const fogMat = (seed, dens, tint, depth)=> new THREE.ShaderMaterial({
   const m = new THREE.Mesh(new THREE.PlaneGeometry(60, 36), fogMat(seed, d, t, dp)); m.position.set(0,0,z); m.renderOrder = 14-i; scene.add(m);
 });
 
-// ================= collage de fondo (prueba local con las referencias que no son cadenas) =================
-// Se cargan desde ../Referencias esteticas (fuera del repo): online no existen y simplemente no se ven.
-const COLLAGE = ['phone wallpaper.jpg','descarga (4).jpg','descarga (5).jpg','descarga (3).jpg',
-  'Морские раковины _ Футуристическая архитектура, Геометрические фигуры, Графика.jpg','descarga (8).jpg',
-  'high contrast black and white wallpaper _ not oc.jpg','Black Metal — Studio Iron.jpg','descarga (7).jpg','descarga (6).jpg','descarga.jpg'];
+// ================= collage de fondo: imágenes propias generadas con herramientas/fondos.py =================
+const COLLAGE = ['01','05','03','07','02','06','08','04','09','10'].map(n=>'img/fondo/fondo-'+n+'.jpg');
 const collage = [];
 COLLAGE.forEach((name, i)=>{
   const U = {map:{value:null}, time:GU.time, vel:GU.vel, inv:{value:0}, seed:{value:Math.random()*10}, alpha:{value:.11}, figMul:GU.figMul};
@@ -1060,8 +1057,8 @@ COLLAGE.forEach((name, i)=>{
   }));
   mesh.visible = false; mesh.renderOrder = 1; scene.add(mesh);
   const side = i%2 ? 1 : -1, w = 13 + Math.random()*11;
-  const c = {mesh, U, ok:false, aspect:1, w, base:new V3(side*(4 + Math.random()*10), -i*8.5*.38 + 4, -30 - Math.random()*14), par:.38, rot:(Math.random()-.5)*.25};
-  texLoader.load(encodeURI('../Referencias esteticas/'+name), tex=>{
+  const c = {mesh, U, ok:false, aspect:1, w, base:new V3(side*(4 + Math.random()*10), -i*9.4*.38 + 4, -30 - Math.random()*14), par:.38, rot:(Math.random()-.5)*.25};
+  texLoader.load(name, tex=>{
     const im = tex.image, cv = document.createElement('canvas'); cv.width = cv.height = 16;
     const g = cv.getContext('2d'); g.drawImage(im,0,0,16,16); const d = g.getImageData(0,0,16,16).data; let s = 0;
     for(let k=0;k<d.length;k+=4) s += (d[k]+d[k+1]+d[k+2])/765;
