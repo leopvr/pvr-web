@@ -69,6 +69,10 @@ main,footer{position:relative;z-index:10}
 .hero{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:calc(env(safe-area-inset-top,0px) + 92px);padding-bottom:clamp(28px,5vw,56px);overflow:hidden}
 .hero .bgimg{position:absolute;inset:0}
 .hero .title{width:92%;margin:-14vh auto 0;aspect-ratio:var(--ar,3.4);position:relative;z-index:2}
+.hero .quick{position:relative;z-index:3;display:flex;justify-content:center;gap:16px;margin-top:clamp(14px,2vw,26px);color:#fff}
+.hero .quick a{opacity:.55;transition:opacity .4s;padding:6px 2px}
+.hero .quick a:hover,.hero .quick a:focus-visible{opacity:1}
+.hero .quick span{opacity:.35;padding-block:6px}
 .hero .row{position:absolute;z-index:2;left:var(--gx);right:var(--gxr);bottom:clamp(28px,5vw,56px);display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
 .hero .tag{font-size:clamp(28px,3.4vw,50px);font-weight:200;letter-spacing:-.025em;line-height:1.06}
 .hero .meta{display:flex;flex-direction:column;align-items:flex-end;gap:8px;text-align:right}
@@ -282,6 +286,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
   <div class="gl bgimg" data-gl="relief" data-src="img/hero.jpg" data-label="PVR"><span class="sr">PVR de perfil frente a un tubo fluorescente</span></div>
   <a class="next" href="#trayectoria"><span class="mono">Próxima fecha</span><b>RAVE 3000</b><span class="mono" style="letter-spacing:.14em">Fin de año 2026</span></a>
   <div class="gl title" data-gl="title"><h1 class="sr">PVR</h1></div>
+  <div class="quick mono dif"><a href="https://www.instagram.com/pvr__________" target="_blank" rel="noopener">Instagram ↗</a><span aria-hidden="true">·</span><a href="https://soundcloud.com/pvr_trax" target="_blank" rel="noopener">SoundCloud ↗</a></div>
   <div class="row dif">
     <p class="tag">Una catarsis<br>del lado oscuro.</p>
     <div class="meta mono" style="color:#fff"><span>DJ · Productor · Docente</span><span>Buenos Aires · AR</span><span>Residente BeTechno</span></div>
@@ -660,12 +665,14 @@ function rectW(el, out = {}){
 
 // ================= pantallas =================
 const SCREEN_FRAG = NOISE + `
-uniform sampler2D map, mapB; uniform float time,vel,hover,rt,planeA,texA,texB,distort,glitch,isImg,fade,prog,gain,soft,bare,vseed,look; uniform vec2 rc; varying vec2 vUv;
+uniform sampler2D map, mapB; uniform float time,vel,hover,rt,planeA,texA,texB,distort,glitch,isImg,fade,prog,gain,soft,bare,vseed,look,colr; uniform vec2 rc; varying vec2 vUv;
 vec2 cover(vec2 uv,float ta){ vec2 s = planeA>ta ? vec2(1., ta/planeA) : vec2(planeA/ta, 1.); return (uv-.5)*s+.5; }
 vec3 grab(sampler2D t, vec2 uv, float ta, float sh){
   vec2 tc=cover(uv,ta);
-  float l=lum(texture2D(t,tc).rgb), lr=lum(texture2D(t,tc+vec2(sh,0.)).rgb), lb=lum(texture2D(t,tc-vec2(sh*.6,0.)).rgb);
-  return mix(vec3(l),vec3(lr,l,lb),.5);
+  vec3 base=texture2D(t,tc).rgb; vec3 rs=texture2D(t,tc+vec2(sh,0.)).rgb, bs=texture2D(t,tc-vec2(sh*.6,0.)).rgb;
+  float l=lum(base);
+  vec3 bw=mix(vec3(l),vec3(lum(rs),l,lum(bs)),.5);
+  return mix(bw, vec3(rs.r,base.g,bs.b), colr);                       // colr=1: color original (tapas)
 }
 void main(){
   vec2 uv=vUv;
@@ -740,7 +747,7 @@ function makeScreen(el, kind){
   const Kb = [0,1,2,3].map(()=> .6 + Math.random()*.9);                                       // marco de grosor desparejo
   const group = new THREE.Group(); scene.add(group);
   const U = {map:{value:null}, mapB:{value:null}, time:GU.time, vel:GU.vel, hover:{value:0}, rt:{value:9}, rc:{value:new V2(.5,.5)},
-    planeA:{value:1}, texA:{value:16/9}, texB:{value:1}, distort:{value:kind==='video'?.1:.25}, glitch:{value:glitch}, isImg:{value:kind==='covers'?1:0},
+    planeA:{value:1}, texA:{value:16/9}, texB:{value:1}, distort:{value:kind==='video'?.1:.25}, glitch:{value:glitch}, isImg:{value:0}, colr:{value:kind==='covers'?1:0},
     fade:{value:0}, prog:{value:0}, gain:{value:parseFloat(el.dataset.gain || '1.2')}, soft:{value:style==='bare'?.2:.015}, bare:{value:style==='bare'?1:0},
     vseed:{value:Math.random()*10}, look:{value:el.dataset.look === 'engrave' ? 1 : 0}};
   const geo = warpPlane(J);
@@ -1002,23 +1009,66 @@ bgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), new THREE.ShaderMateria
 })));
 
 // ================= niebla =================
-const fogMat = (seed, dens, tint)=> new THREE.ShaderMaterial({
-  uniforms:{...GU, seed:{value:seed}, dens:{value:dens}, tint:{value:tint}},
+// niebla en capas a distinta profundidad: cada capa se mueve a su velocidad con el scroll (parallax) y
+// sólo deja jirones con forma; entre jirón y jirón queda negro de verdad. Ruido más liviano (3+4 octavas).
+const fogMat = (seed, dens, tint, depth)=> new THREE.ShaderMaterial({
+  uniforms:{...GU, seed:{value:seed}, dens:{value:dens}, tint:{value:tint}, depth:{value:depth}},
   transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexShader:VERT_UV,
   fragmentShader:NOISE+`
-    uniform float time,scroll,seed,dens,tint,fogMul; uniform sampler2D mask; uniform vec2 res; varying vec2 vUv;
+    uniform float time,scroll,seed,dens,tint,fogMul,depth; uniform sampler2D mask; uniform vec2 res; varying vec2 vUv;
+    float fb3(vec2 p){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*vn(p);p=p*2.03+vec2(3.1,1.7);a*=.5;}return s;}
+    float fb4(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vn(p);p=p*2.03+vec2(3.1,1.7);a*=.5;}return s;}
     void main(){
-      vec2 p=vUv*vec2(3.2,1.8)+seed+vec2(0.,scroll*.06);
-      vec2 q=vec2(fbm(p+vec2(time*.03,0.)),fbm(p+vec2(0.,-time*.02)));
-      float f=smoothstep(.35,.95,fbm(p+q*1.7+vec2(time*.025,0.)));
-      float low=smoothstep(.8,.0,vUv.y);
+      vec2 p=vUv*vec2(3.2,1.8)*(1.+depth*.6)+seed+vec2(time*.015*(1.+depth), scroll*(.04+depth*.16));
+      vec2 q=vec2(fb3(p+vec2(time*.03,0.)), fb3(p+vec2(5.2,-time*.02)));
+      float f=smoothstep(.5,.95,fb4(p+q*1.9));
+      float low=smoothstep(.85,.0,vUv.y);
       float edge=smoothstep(0.,.12,vUv.x)*smoothstep(1.,.88,vUv.x)*smoothstep(0.,.08,vUv.y)*smoothstep(1.,.85,vUv.y);
-      float m=texture2D(mask, gl_FragCoord.xy/res).r;
-      gl_FragColor=vec4(vec3(tint*f*(.3+1.1*low)*edge*dens*fogMul*(1.-m*.92)),1.);
+      // la marca del cursor se deforma: se lee desplazada por ruido que cambia con el tiempo
+      vec2 mw=gl_FragCoord.xy/res+(vec2(vn(vUv*7.+time*.5),vn(vUv*7.+9.3-time*.4))-.5)*.05;
+      float m=texture2D(mask, mw).r;
+      gl_FragColor=vec4(vec3(tint*f*(.3+1.1*low)*edge*dens*fogMul*(1.-m*.95)),1.);
     }`
 });
-[[-1.6,1.1,.9,.04],[-4.5,2.3,1.0,.034],[-9,3.7,1.3,.03],[2.4,5.2,.4,.02]].forEach(([z,seed,d,t],i)=>{
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(50, 30), fogMat(seed, d, t)); m.position.set(0,0,z); m.renderOrder = 10+i; scene.add(m);
+// [z, semilla, densidad, tono, profundidad]
+[[2.4,7.1,.45,.05,0],[-1.6,1.1,.9,.075,.2],[-5.5,2.3,1.0,.065,.45],[-11,3.7,1.25,.06,.75],[-19,5.9,1.4,.05,1]].forEach(([z,seed,d,t,dp],i)=>{
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(60, 36), fogMat(seed, d, t, dp)); m.position.set(0,0,z); m.renderOrder = 14-i; scene.add(m);
+});
+
+// ================= collage de fondo (prueba local con las referencias que no son cadenas) =================
+// Se cargan desde ../Referencias esteticas (fuera del repo): online no existen y simplemente no se ven.
+const COLLAGE = ['phone wallpaper.jpg','descarga (4).jpg','descarga (5).jpg','descarga (3).jpg',
+  'Морские раковины _ Футуристическая архитектура, Геометрические фигуры, Графика.jpg','descarga (8).jpg',
+  'high contrast black and white wallpaper _ not oc.jpg','Black Metal — Studio Iron.jpg','descarga (7).jpg','descarga (6).jpg','descarga.jpg'];
+const collage = [];
+COLLAGE.forEach((name, i)=>{
+  const U = {map:{value:null}, time:GU.time, vel:GU.vel, inv:{value:0}, seed:{value:Math.random()*10}, alpha:{value:.11}, figMul:GU.figMul};
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.ShaderMaterial({
+    uniforms:U, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexShader:VERT_UV,
+    fragmentShader:NOISE+`
+      uniform sampler2D map; uniform float time,vel,inv,seed,alpha,figMul; varying vec2 vUv;
+      float px(vec2 uv){ float l=lum(texture2D(map,uv).rgb); return inv>.5 ? 1.-l : l; }
+      void main(){
+        vec2 uv=vUv; uv.x+=(vn(vec2(uv.y*3.+seed,time*.08))-.5)*.02;
+        float s=0., st=.006+min(abs(vel),1.)*.035;                      // estela vertical que se estira con el scroll
+        for(int i=0;i<6;i++){ float w=1.-float(i)/6.; s+=px(uv+vec2(0.,float(i)*st))*w; }
+        s=smoothstep(.18,.95,s/3.5);
+        float e=smoothstep(0.,.3,vUv.x)*smoothstep(1.,.7,vUv.x)*smoothstep(0.,.3,vUv.y)*smoothstep(1.,.7,vUv.y);
+        e*=smoothstep(.25,.6,vn(vUv*3.+seed+time*.03)+.3);              // bordes rotos, no rectángulos
+        gl_FragColor=vec4(vec3(s*e*alpha*min(figMul,1.5)),1.);
+      }`
+  }));
+  mesh.visible = false; mesh.renderOrder = 1; scene.add(mesh);
+  const side = i%2 ? 1 : -1, w = 13 + Math.random()*11;
+  const c = {mesh, U, ok:false, aspect:1, w, base:new V3(side*(4 + Math.random()*10), -i*8.5*.38 + 4, -30 - Math.random()*14), par:.38, rot:(Math.random()-.5)*.25};
+  texLoader.load(encodeURI('../Referencias esteticas/'+name), tex=>{
+    const im = tex.image, cv = document.createElement('canvas'); cv.width = cv.height = 16;
+    const g = cv.getContext('2d'); g.drawImage(im,0,0,16,16); const d = g.getImageData(0,0,16,16).data; let s = 0;
+    for(let k=0;k<d.length;k+=4) s += (d[k]+d[k+1]+d[k+2])/765;
+    U.inv.value = s/256 > .5 ? 1 : 0;                                 // los de fondo blanco se invierten
+    U.map.value = tex; c.aspect = im.width/im.height; c.ok = true;
+  });
+  collage.push(c);
 });
 
 // ================= figuras de puntos finas, que se deshacen con el cursor =================
@@ -1276,6 +1326,12 @@ function updateScene(dt){
   drawChains();
 
   field.position.set(par.x*.8, -6 + scrollW*.12, -22);
+  for(const c of collage){
+    if(!c.ok) continue;
+    const y = c.base.y + scrollW*c.par;
+    c.mesh.visible = Math.abs(y) < 20 + c.w*.6; if(!c.mesh.visible) continue;   // sólo se dibuja la que está cerca
+    c.mesh.position.set(c.base.x + par.x*1.2, y, c.base.z); c.mesh.scale.set(c.w, c.w/c.aspect, 1); c.mesh.rotation.z = c.rot;
+  }
   if(manEl){ rectW(manEl, RM); sigil.visible = RM.vis; if(RM.vis){ sigil.position.set(RM.x, RM.y, -4.5); const s = RM.h*1.05 + 1; sigil.scale.set(s, s, s); } }
   sigil.rotation.y = Math.sin(t*.12)*.5; sigil.rotation.z = Math.sin(t*.07)*.08;
 
@@ -1298,9 +1354,16 @@ function updateScene(dt){
   if(mouse.active){
     const x = (mouse.x*.5+.5)*256, y = (mouse.y*.5+.5)*256;
     const px = mouse.px<0?x:mouse.px, py = mouse.py<0?y:mouse.py, n = Math.max(1, Math.ceil(Math.hypot(x-px,y-py)/4));
+    // marca deforme: manchas de tamaño y lugar irregular, estiradas en la dirección del movimiento
+    const ang = Math.atan2(-(y-py), x-px), spd = Math.min(1, Math.hypot(x-px,y-py)/12);
     for(let i=1;i<=n;i++){ const cx = px+(x-px)*i/n, cy = 256-(py+(y-py)*i/n);
-      const gr = tg.createRadialGradient(cx,cy,0,cx,cy,26); gr.addColorStop(0,'rgba(255,255,255,.22)'); gr.addColorStop(1,'rgba(255,255,255,0)');
-      tg.fillStyle = gr; tg.fillRect(cx-26,cy-26,52,52); }
+      for(let b=0;b<2;b++){
+        const r = 10 + Math.random()*22, jx = (Math.random()-.5)*14, jy = (Math.random()-.5)*14;
+        tg.save(); tg.translate(cx+jx, cy+jy); tg.rotate(ang + (Math.random()-.5)*.8); tg.scale(1 + spd*1.4 + Math.random()*.4, .55 + Math.random()*.5);
+        const gr = tg.createRadialGradient(0,0,0,0,0,r); gr.addColorStop(0,`rgba(255,255,255,${.1+Math.random()*.12})`); gr.addColorStop(1,'rgba(255,255,255,0)');
+        tg.fillStyle = gr; tg.fillRect(-r,-r,r*2,r*2); tg.restore();
+      }
+    }
     mouse.px = x; mouse.py = y;
   }
   trailTex.needsUpdate = true;
