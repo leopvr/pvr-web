@@ -15,7 +15,9 @@
 <link rel="icon" href="favicon.png" sizes="32x32" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="dimension.css">
+<script>try{var dm=JSON.parse(sessionStorage.getItem('pvr-dim')||'null');if(dm&&Date.now()-dm.t<9000)document.documentElement.classList.add('dim-in')}catch(e){}</script>
 <style>
 /*
   PVR · Señal — borrador de la web completa con escena 3D.
@@ -50,17 +52,19 @@ main,footer{position:relative;z-index:10}
 
 /* header */
 .top{position:fixed;top:0;left:0;right:0;z-index:50;padding-top:calc(env(safe-area-inset-top,0px) + 20px);padding-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:24px;mix-blend-mode:difference;color:#fff}
-.top .brand{font-weight:300;font-size:22px;letter-spacing:-.02em}
-.top nav{display:flex;gap:26px;flex-wrap:wrap;justify-content:flex-end}
-.top nav a{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;position:relative;padding-block:6px;opacity:.6;transition:opacity .4s}
-.top nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
-.top nav a:hover,.top nav a.on{opacity:1}
-.top nav a:hover::after,.top nav a.on::after{transform:scaleX(1)}
+.top .brand{font-weight:800;font-size:23px;letter-spacing:-.045em}
+.top nav.secs{display:flex;gap:24px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.top nav.secs a{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;position:relative;padding-block:6px;opacity:.6;transition:opacity .4s}
+.top nav.secs a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.top nav.secs a:hover,.top nav.secs a.on{opacity:1}
+.top nav.secs a:hover::after,.top nav.secs a.on::after{transform:scaleX(1)}
 .menu-btn{display:none;background:none;border:1px solid currentColor;color:inherit;border-radius:75px;padding:10px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;min-height:44px}
 #sheet{position:fixed;inset:0;z-index:45;background:var(--bg);padding-top:calc(env(safe-area-inset-top,0px) + 96px);display:flex;flex-direction:column;gap:6px}
 #sheet[hidden]{display:none}
 #sheet a{font-size:clamp(40px,12vw,64px);font-weight:300;letter-spacing:-.04em;line-height:1.1}
-@media (max-width:900px){.top nav{display:none}.menu-btn{display:inline-flex}}
+@media (max-width:1260px){.top nav.secs{display:none}.top .dims{margin-left:auto}.top .dims .sep{display:none}.menu-btn{display:inline-flex}}
+@media (max-width:760px){.top .dims{display:none}}
+#sheet{overflow:auto;padding-bottom:40px}
 
 .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:clamp(36px,5vw,72px)}
 .sec-head h2,.sec-head h3{font-size:clamp(56px,8vw,132px);font-weight:300;letter-spacing:-.06em}
@@ -213,6 +217,31 @@ main,footer{position:relative;z-index:10}
 .cpy:hover{color:var(--ink);border-color:var(--ink)}
 footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:28px calc(28px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--bg)}
 
+/* páginas secundarias dentro del presskit: discretas */
+.xlink{display:inline-flex;align-items:center;gap:14px;align-self:flex-start;padding-block:10px;border-bottom:1px solid var(--line);font-weight:300;font-size:clamp(17px,1.4vw,20px);transition:border-color .5s,gap .6s var(--ease)}
+.xlink .mono{font-size:10px}
+.xlink:hover{border-color:var(--ink);gap:22px}
+.music .xlink{margin-top:28px;position:relative;z-index:2}
+.other{padding-block:clamp(56px,7vw,110px);border-top:1px solid var(--line);background:#000}
+.other .head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.portals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,1.6vw,22px)}
+@media (max-width:760px){.portals{grid-template-columns:minmax(0,1fr)}}
+.portal{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;min-height:clamp(190px,18vw,260px);padding:clamp(20px,2.4vw,34px);border:1px solid var(--line);transition:border-color .6s,color .6s var(--ease)}
+.portal b{font-size:clamp(30px,3.4vw,54px);font-weight:200;letter-spacing:-.05em;line-height:.95;position:relative;z-index:1}
+.portal small{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);position:relative;z-index:1}
+.portal .mono{position:relative;z-index:1}
+.portal .go{margin-top:auto;font-size:15px;position:relative;z-index:1;transition:transform .6s var(--ease)}
+/* el portal: anillos que se abren al pasar */
+.portal .ring{position:absolute;right:-8%;top:50%;width:min(46%,260px);aspect-ratio:1;transform:translateY(-50%);pointer-events:none}
+.portal .ring i{position:absolute;inset:0;border:1px solid rgba(239,238,234,.18);border-radius:50%;transition:transform 1.2s var(--ease),border-color 1.2s,opacity 1.2s}
+.portal .ring i:nth-child(2){inset:18%;border-color:rgba(239,238,234,.12)}
+.portal .ring i:nth-child(3){inset:36%;border-color:rgba(239,238,234,.08);background:radial-gradient(circle,rgba(239,238,234,.08),transparent 70%)}
+.portal:hover{border-color:rgba(239,238,234,.6)}
+.portal:hover .go{transform:translateX(8px)}
+.portal:hover .ring i:nth-child(1){transform:scale(1.35);opacity:.5}
+.portal:hover .ring i:nth-child(2){transform:scale(1.6);border-color:rgba(239,238,234,.3)}
+.portal:hover .ring i:nth-child(3){transform:scale(2.3);border-color:rgba(239,238,234,.4)}
+
 /* cursor */
 .cur{position:fixed;left:0;top:0;z-index:90;pointer-events:none;mix-blend-mode:difference;color:#fff}
 .cur i{position:absolute;width:28px;height:28px;margin:-14px 0 0 -14px;border:1px solid currentColor;border-radius:50%;transition:width .35s,height .35s,margin .35s}
@@ -267,22 +296,31 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 </script>
 </head>
 <body>
-<canvas id="gl" aria-hidden="true"></canvas>
+<!-- paso entre páginas: va primero para que el humo esté desde el primer cuadro -->
+<script src="dimension.js"></script>
+<script>PVRDim.init({ready: new Promise(function(r){ addEventListener('pvr:ready', r, {once:true}); })});</script>
+<canvas id="gl" class="dim-fx" aria-hidden="true"></canvas>
 <div class="cur" id="cur" aria-hidden="true"><i></i><b></b><span class="mono" id="curLabel"></span></div>
 <div class="boot" id="boot"><div><span class="mono">Sintonizando señal</span><span class="ln"><i id="bootLn"></i></span></div></div>
 
 <header class="top in">
   <a class="brand" href="#inicio" aria-label="PVR, inicio">PVR</a>
-  <nav aria-label="Secciones">
+  <nav class="secs" aria-label="Secciones del presskit">
     <a href="#sobre">Sobre</a><a href="#sonido">Sonido</a><a href="#trayectoria">Trayectoria</a><a href="#musica">Música</a><a href="#sets">Sets</a><a href="#docencia">Docencia</a><a href="#rider">Rider</a><a href="#booking">Booking</a>
   </nav>
+  <nav class="dims" aria-label="Otras páginas"><span class="sep" aria-hidden="true"></span><a href="mastering.html" data-dim><i>02</i>Mastering</a><a href="clases.html" data-dim><i>03</i>Clases</a></nav>
   <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sheet">Menú</button>
 </header>
 <nav id="sheet" class="in" aria-label="Menú" hidden>
   <a href="#sobre">Sobre</a><a href="#sonido">Sonido</a><a href="#trayectoria">Trayectoria</a><a href="#musica">Música</a><a href="#sets">Sets</a><a href="#docencia">Docencia</a><a href="#rider">Rider</a><a href="#booking">Booking</a>
+  <div class="sheet-dims"><span class="mono">Páginas</span>
+    <a href="index.html" aria-current="page"><i>01</i>Presskit</a>
+    <a href="mastering.html" data-dim><i>02</i>Mezcla y mastering</a>
+    <a href="clases.html" data-dim><i>03</i>Clases</a>
+  </div>
 </nav>
 
-<main>
+<main class="dim-fx">
 <!-- INICIO -->
 <section class="hero in" id="inicio">
   <div class="gl bgimg" data-gl="relief" data-src="img/hero.jpg" data-label="PVR"><span class="sr">PVR de perfil frente a un tubo fluorescente</span></div>
@@ -380,6 +418,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     <a class="pill" href="https://soundcloud.com/pvr_trax" target="_blank" rel="noopener">SoundCloud ↗</a>
     <a class="pill" href="https://www.youtube.com/@pvr_tracks" target="_blank" rel="noopener">YouTube ↗</a>
   </div>
+  <a class="xlink" href="mastering.html" data-dim><span class="mono">02</span>¿Tu track necesita mezcla o master?<span aria-hidden="true">→</span></a>
 </section>
 
 <!-- SETS -->
@@ -410,6 +449,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     <p class="mono">Producción y docencia</p>
     <div class="num"><b>4</b><span>años como profesor<br>de producción y mezcla</span></div>
     <p class="lead">Profesor de producción y mezcla desde hace cuatro años y, actualmente, director del área de producción musical de Tekgen. Enseñar le dio una mirada técnica y analítica del sonido que se nota en cabina: cada textura y cada distorsión están ubicadas con intención.</p>
+    <a class="xlink" href="clases.html" data-dim><span class="mono">03</span>Sumate a las clases de producción<span aria-hidden="true">→</span></a>
   </div>
   <div class="gl img" data-gl="image" data-src="img/docencia.jpg" data-frame="bare" data-look="engrave" data-tilt="1" data-gain="1.4" data-glitch="0" data-label="PVR"><span class="sr">PVR mirando a cámara</span></div>
 </section>
@@ -441,8 +481,17 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
     <div class="c"><span class="mono">Prensa</span><a class="big" href="https://drive.google.com/drive/u/4/folders/1McOlb39oepg8M8IJdTcWV4rKYDw8wyVy" target="_blank" rel="noopener">PVR Presskit ↗</a></div>
   </div>
 </section>
+
+<!-- OTRAS PÁGINAS (secundarias) -->
+<section class="other in" aria-label="Otras páginas">
+  <div class="head"><p class="mono">Además</p><p class="mono">Dos páginas más</p></div>
+  <div class="portals">
+    <a class="portal" href="mastering.html" data-dim><span class="ring" aria-hidden="true"><i></i><i></i><i></i></span><span class="mono">02 — Estudio</span><b>Mezcla y mastering</b><small>Master · Master por stems · Mezcla + master</small><span class="go">Entrar →</span></a>
+    <a class="portal" href="clases.html" data-dim><span class="ring" aria-hidden="true"><i></i><i></i><i></i></span><span class="mono">03 — Aprender</span><b>Clases de producción</b><small>Con PVR en TEKGEN</small><span class="go">Entrar →</span></a>
+  </div>
+</section>
 </main>
-<footer class="in mono"><span>PVR · Leonardo Peñalver</span><span>Buenos Aires · 2026</span></footer>
+<footer class="in mono dim-fx"><span>PVR · Leonardo Peñalver</span><span>Buenos Aires · 2026</span></footer>
 
 <aside class="rack mono closed" id="rack" aria-label="Ajustes visuales">
   <header><span>Ajustes</span><button id="rackMin" type="button" aria-expanded="false">+</button></header>
@@ -520,11 +569,12 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
   });
 
   // nav activa
-  var navA = [].slice.call(document.querySelectorAll('.top nav a'));
+  var navA = [].slice.call(document.querySelectorAll('.top nav.secs a'));
   var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ navA.forEach(function(a){ a.classList.toggle('on', a.getAttribute('href') === '#'+e.target.id); }); } }); }, {rootMargin:'-45% 0px -50% 0px'});
   document.querySelectorAll('main > section[id]').forEach(function(s){ io.observe(s); });
 })();
 </script>
+
 
 <script type="module">
 import * as THREE from 'three';
@@ -698,7 +748,7 @@ void main(){
   if(prog>0.){
     vec3 cb=grab(mapB,uv,texB,sh);
     float m=smoothstep(prog-.12,prog+.12,fbm(uv*5.+time*.2)*.8+uv.y*.2);
-    c=mix(cb,c,m);
+    c=mix(c,cb,m);                                                  // prog=0: tapa anterior · prog=1: la nueva
   }
   float l=lum(c);
   c=smoothstep(vec3(.03),vec3(.95),c)*(gain+hover*.3)+ring*.12;
@@ -927,12 +977,12 @@ const COVERS = ['todo-es-temporal','tercer-mandamiento','pure-hell','sleep-anxie
 const COVER_LINKS = [...document.querySelectorAll('#tracks a')].map(a=>a.href);
 let coverItem = null, coverNext = 0, coverAuto = 0, coverHold = false;
 
-// ================= título: PVR fino que se deshace en hilos =================
+// ================= título: PVR (grueso, cerca del de la web online) que se deshace en hilos =================
 async function makeTitle(el){
-  try{ await document.fonts.load('300 400px "Inter Tight"'); }catch(e){}
+  try{ await document.fonts.load('700 400px "Inter Tight"'); }catch(e){}
   const CW = 2000, CH = 640, c = document.createElement('canvas'); c.width = CW; c.height = CH;
-  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.font = '300 600px "Inter Tight", sans-serif'; g.textBaseline = 'alphabetic';
-  try{ g.letterSpacing = '-36px'; }catch(e){}
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.font = '700 600px "Inter Tight", sans-serif'; g.textBaseline = 'alphabetic';
+  try{ g.letterSpacing = '-42px'; }catch(e){}
   const tw = g.measureText('PVR').width; g.fillText('PVR', (CW-tw)/2, CH*.88);
   const d = g.getImageData(0,0,CW,CH).data;
   let x0 = CW, x1 = 0, y0 = CH, y1 = 0;
@@ -1243,12 +1293,11 @@ function bgChain(a, b, s, par, slack, free=false){
   const anim = ()=>({f:.16+Math.random()*.2, ph:Math.random()*6.28, ax:free ? 2.2 : .9, ay:free ? .4 : 1.1, az:free ? 1.4 : .5});
   bgPins.push({id:ids[0], base:a.clone(), par, ...anim()}); if(!free) bgPins.push({id:ids[ids.length-1], base:b.clone(), par, ...anim()});
 }
-bgChain(new V3(-21, 4, -8), new V3(21, 2.4, -8), 2.5, .5, 1.045);
 bgChain(new V3(-22, -18, -12), new V3(22, -21, -12), 2.2, .5, 1.06);
 bgChain(new V3(-24, -40, -15), new V3(18, -22, -15), 2.1, .5, 1.03);
 bgChain(new V3(-18, -60, -10), new V3(22, -64, -10), 2.3, .5, 1.05);
 bgChain(new V3(-20, -86, -13), new V3(20, -80, -13), 2.2, .5, 1.05);
-[[-7,-4,1.2],[7.8,-4.5,1.05],[-11,-12,2],[13,-13,2.1],[2.6,-14,1.9]].forEach(([x,z,s])=>{
+[[-7,-4,1.2],[7.8,-4.5,1.05],[-11,-12,2],[13,-13,2.1]].forEach(([x,z,s])=>{
   bgChain(new V3(x, 13, z), new V3(x, -40, z), s, .2, 1, true);
 });
 
@@ -1489,7 +1538,7 @@ function loop(){
   const dt = Math.min(clock.getDelta(), .05); t += reduce ? dt*.25 : dt; acc += dt; GU.time.value = t;
   updateScene(dt);
   composer.render();
-  if(++frames === 4) document.getElementById('boot').classList.add('off');
+  if(++frames === 4){ document.getElementById('boot').classList.add('off'); dispatchEvent(new Event('pvr:ready')); }
   requestAnimationFrame(loop);
 }
 for(const it of items) it.update(0);

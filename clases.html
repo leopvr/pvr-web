@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es" class="dim-in">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PVR — Clases de producción</title>
+<meta name="description" content="Clases de producción musical con PVR en TEKGEN, escuela de música electrónica de Buenos Aires.">
+<meta property="og:title" content="PVR — Clases de producción">
+<meta property="og:description" content="Sumate a las clases de producción con PVR en TEKGEN.">
+<meta property="og:image" content="https://pvrstudio.com/img/og.jpg">
+<link rel="canonical" href="https://pvrstudio.com/clases">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" sizes="32x32" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="secundaria.css">
+<link rel="stylesheet" href="dimension.css">
+<style>
+.acad{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,84px);align-items:start}
+@media (max-width:900px){.acad{grid-template-columns:minmax(0,1fr)}}
+.tk-logo{padding-block:clamp(10px,2vw,28px)}
+.tk-logo img{display:block;width:min(100%,640px);height:auto;filter:grayscale(1)}
+.acad .big{font-size:clamp(64px,11vw,184px);font-weight:200;letter-spacing:-.075em;line-height:.82}
+.acad .col{display:flex;flex-direction:column;gap:24px;min-width:0}
+.facts{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.facts li{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:16px;padding-block:18px;border-bottom:1px solid var(--line);font-weight:300}
+@media (max-width:560px){.facts li{grid-template-columns:minmax(0,1fr);gap:6px}}
+.facts li .mono{padding-top:4px}
+.teacher{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
+.teacher b{font-size:clamp(130px,16vw,260px);font-weight:200;letter-spacing:-.08em;line-height:.76}
+.teacher span{font-size:clamp(22px,2.2vw,34px);font-weight:300;line-height:1.1;letter-spacing:-.015em;padding-bottom:10px}
+
+/* sumate: mensaje precargado + redes */
+.join{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(32px,5vw,84px);align-items:start}
+@media (max-width:900px){.join{grid-template-columns:minmax(0,1fr)}}
+.join h2{font-size:clamp(56px,8vw,132px);font-weight:300;letter-spacing:-.06em}
+.msgbox{display:flex;flex-direction:column;gap:18px;border:1px solid var(--line);padding:clamp(18px,2.6vw,36px);background:rgba(0,0,0,.6);backdrop-filter:blur(3px);min-width:0}
+.msgbox textarea{width:100%;min-height:150px;resize:vertical;background:none;border:0;border-bottom:1px solid rgba(239,238,234,.45);color:var(--ink);font-family:var(--display);font-size:clamp(19px,1.7vw,24px);font-weight:300;line-height:1.45;padding:6px 0 14px;border-radius:0}
+.chan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.chan{grid-template-columns:minmax(0,1fr)}}
+.chan a{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);padding:16px;min-height:44px;transition:background .4s,color .4s,border-color .4s}
+.chan a b{font-size:20px;font-weight:600;letter-spacing:-.02em}
+.chan a small{font-size:13px;font-weight:300;color:var(--mute);line-height:1.35}
+.chan a:hover{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chan a:hover small{color:#3a3a38}
+.chan a[hidden]{display:none}
+#jstatus{min-height:1.5em;font-weight:300;color:#cfceca}
+.copy-line{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cpy{background:none;border:1px solid var(--line);color:var(--mute);border-radius:75px;padding:8px 16px;min-height:40px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:color .3s,border-color .3s}
+.cpy:hover{color:var(--ink);border-color:var(--ink)}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<!-- paso entre páginas: va primero para que el humo esté desde el primer cuadro -->
+<script src="dimension.js"></script>
+<script>PVRDim.init({entry:'always'});</script>
+<canvas id="amb" class="dim-fx" aria-hidden="true"></canvas>
+<canvas id="art" class="dim-fx" aria-hidden="true"></canvas>
+<div class="cur" id="cur" aria-hidden="true"><i></i><b></b><span class="mono"></span></div>
+<div id="grain" aria-hidden="true"></div>
+
+<header class="top in">
+  <a class="brand" href="index.html" data-dim aria-label="PVR, volver al presskit">PVR</a>
+  <nav class="dims" aria-label="Páginas">
+    <a href="index.html" data-dim><i>01</i>Presskit</a>
+    <a href="mastering.html" data-dim><i>02</i>Mastering</a>
+    <a href="clases.html" data-dim aria-current="page"><i>03</i>Clases</a>
+  </nav>
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sheet">Menú</button>
+</header>
+<nav id="sheet" class="in" aria-label="Menú" hidden>
+  <a href="#tekgen">TEKGEN</a><a href="#sumate">Sumate</a>
+  <div class="sheet-dims"><span class="mono">Páginas</span>
+    <a href="index.html" data-dim><i>01</i>Presskit</a>
+    <a href="mastering.html" data-dim><i>02</i>Mezcla y mastering</a>
+    <a href="clases.html" aria-current="page"><i>03</i>Clases</a>
+  </div>
+</nav>
+
+<main class="dim-fx">
+  <section class="hero in">
+    <div class="art hero-piece" data-art="fondo" data-src="img/fondo/fondo-08.jpg" data-gain="1.2" aria-hidden="true"></div>
+    <p class="mono">03 — Clases · TEKGEN</p>
+    <h1>Clases de<br><em>producción</em></h1>
+    <div class="row">
+      <p class="lead">Aprendé a producir con PVR en TEKGEN. Una mirada técnica y analítica del sonido, la misma que se escucha en cabina: cada textura y cada distorsión ubicadas con intención.</p>
+      <div class="acts"><a class="pill solid" href="#sumate">Quiero arrancar ↓</a><a class="pill" href="#tekgen">Sobre TEKGEN</a></div>
+    </div>
+  </section>
+
+  <section class="in pad" id="tekgen" style="padding-top:clamp(40px,5vw,80px)">
+    <div class="art chain-r" data-art="cadena" aria-hidden="true"></div>
+    <div class="art ghost" data-art="fondo" data-src="img/fondo/fondo-01.jpg" data-gain=".6" aria-hidden="true"></div>
+    <div class="acad">
+      <div class="col rv">
+        <p class="mono">La academia</p>
+        <div class="tk-logo" id="tkLogo"><img src="img/tekgen-logo.png" width="1600" height="217" alt="TEKGEN"></div>
+        <p class="lead">Escuela de música electrónica de Buenos Aires. Además de la escuela es sello, productora de eventos y una comunidad de artistas: lo que se aprende en el aula se cruza con la pista.</p>
+        <div class="art block" data-art="fondo" data-src="img/fondo/fondo-02.jpg" data-gain="1.2" aria-hidden="true"></div>
+      </div>
+      <div class="col rv">
+        <ul class="facts">
+          <li><span class="mono">Clases</span><span>DJ y producción musical, para todos los niveles.</span></li>
+          <li><span class="mono">Producción</span><span>A cargo de PVR, director del área de producción musical.</span></li>
+          <li><span class="mono">Comunidad</span><span>Sello (Tekgen Records), fiestas y artistas que se forman juntos.</span></li>
+          <li><span class="mono">Dónde</span><span>Buenos Aires, Argentina.</span></li>
+        </ul>
+        <div class="teacher"><b>4</b><span>años como profesor<br>de producción y mezcla</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="in pad" id="sumate" style="padding-top:0">
+    <div class="art chain-l" data-art="cadena" aria-hidden="true"></div>
+    <div class="join">
+      <div class="col rv" style="display:flex;flex-direction:column;gap:24px">
+        <p class="mono">Sumate</p>
+        <h2>Escribile a TEKGEN</h2>
+        <p class="lead">El mensaje ya está escrito: editalo si querés y elegí por dónde mandarlo. Te pasan horarios, modalidad y valores.</p>
+        <div class="art block" data-art="fondo" data-src="img/fondo/fondo-09.jpg" data-gain="1.2" aria-hidden="true"></div>
+      </div>
+      <div class="msgbox rv">
+        <div class="copy-line"><label class="mono" for="jmsg">Tu mensaje</label><button class="cpy" type="button" id="jcopy">Copiar</button></div>
+        <textarea id="jmsg">Hola TEKGEN! Me interesaría arrancar clases de producción con PVR. ¿Me pasan info de horarios, modalidad y valores? Gracias!</textarea>
+        <div class="chan" id="chan">
+          <a id="ch-ig" href="#" target="_blank" rel="noopener"><b>Instagram ↗</b><small>Se copia el mensaje: pegalo en el chat.</small></a>
+          <a id="ch-wa" href="#" target="_blank" rel="noopener"><b>WhatsApp ↗</b><small>Se abre con el mensaje escrito.</small></a>
+          <a id="ch-tt" href="#" target="_blank" rel="noopener" hidden><b>TikTok ↗</b><small>Se copia el mensaje: pegalo en el chat.</small></a>
+          <a id="ch-mail" href="#"><b>Mail a PVR</b><small>Se abre tu mail con el mensaje escrito.</small></a>
+        </div>
+        <p id="jstatus" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <nav class="more" aria-label="Otras páginas">
+    <a href="index.html" data-dim><span class="mono">01 — Volver</span><b>Presskit PVR</b></a>
+    <a href="mastering.html" data-dim><span class="mono">02 — Estudio</span><b>Mezcla y mastering</b></a>
+  </nav>
+</main>
+<footer class="in mono dim-fx"><span>PVR · Leonardo Peñalver</span><span>Buenos Aires · 2026</span></footer>
+
+<script type="module" src="escena-secundaria.js"></script>
+<script>
+(function(){
+  /* ---------- redes de TEKGEN ----------
+     instagram / tiktok: usuario sin @ · whatsapp: número con código de país, solo dígitos (ej. 5491100000000).
+     Si un campo queda vacío, ese botón no aparece. */
+  var TEKGEN = {
+    instagram: 'tekgen_',          // instagram.com/tekgen_
+    tiktok:    '',
+    whatsapp:  '5491167959065'     // +54 9 11 6795-9065
+  };
+  var MAIL = 'contact.leopvr@gmail.com';
+
+  var msg = document.getElementById('jmsg'), st = document.getElementById('jstatus');
+  var ig = document.getElementById('ch-ig'), wa = document.getElementById('ch-wa'), tt = document.getElementById('ch-tt'), ml = document.getElementById('ch-mail');
+  function txt(){ return msg.value.trim(); }
+  function refresh(){
+    ig.hidden = !TEKGEN.instagram; tt.hidden = !TEKGEN.tiktok; wa.hidden = !TEKGEN.whatsapp;
+    if(TEKGEN.instagram) ig.href = 'https://ig.me/m/' + TEKGEN.instagram;
+    if(TEKGEN.tiktok) tt.href = 'https://www.tiktok.com/@' + TEKGEN.tiktok;
+    if(TEKGEN.whatsapp) wa.href = 'https://wa.me/' + TEKGEN.whatsapp + '?text=' + encodeURIComponent(txt());
+    ml.href = 'mailto:' + MAIL + '?subject=' + encodeURIComponent('Clases de producción en TEKGEN') + '&body=' + encodeURIComponent(txt());
+  }
+  msg.addEventListener('input', refresh); refresh();
+
+  function copy(then){
+    var t = txt();
+    function ok(){ if(then) then(true); }
+    function fb(){ msg.select(); try{ document.execCommand('copy'); ok(); }catch(e){ if(then) then(false); } }
+    try{ navigator.clipboard.writeText(t).then(ok, fb); }catch(e){ fb(); }
+  }
+  document.getElementById('jcopy').addEventListener('click', function(){
+    var b = this; copy(function(ok){ b.textContent = ok ? 'Copiado' : 'Seleccionado'; setTimeout(function(){ b.textContent = 'Copiar'; }, 1600); });
+  });
+  // Instagram y TikTok no dejan precargar texto: se copia antes de abrir
+  [ig, tt].forEach(function(a){
+    a.addEventListener('click', function(){ copy(function(ok){ st.textContent = ok ? 'Mensaje copiado: pegalo en el chat de TEKGEN.' : 'Copiá el mensaje de arriba y pegalo en el chat de TEKGEN.'; }); });
+  });
+
+  /* ---------- menú del celular ---------- */
+  var btn = document.getElementById('menuBtn'), sheet = document.getElementById('sheet');
+  btn.addEventListener('click', function(){ var open = sheet.hidden; sheet.hidden = !open; btn.setAttribute('aria-expanded', String(open)); btn.textContent = open ? 'Cerrar' : 'Menú'; });
+  sheet.addEventListener('click', function(e){ if(e.target.closest('a')){ sheet.hidden = true; btn.setAttribute('aria-expanded','false'); btn.textContent = 'Menú'; } });
+
+  /* ---------- aparecer al bajar ---------- */
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); } }); }, {rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+
+  PVRDim.ambient(document.getElementById('amb'), {variant:1, over:true});
+})();
+</script>
+</body>
+</html>

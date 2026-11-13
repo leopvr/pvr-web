@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es" class="dim-in">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PVR — Mezcla y mastering</title>
+<meta name="description" content="Mezcla y mastering con PVR para techno, industrial y electrónica oscura: Master, Master por stems y Mezcla + master.">
+<meta property="og:title" content="PVR — Mezcla y mastering">
+<meta property="og:description" content="Master, master por stems y mezcla + master para techno, industrial y electrónica oscura.">
+<meta property="og:image" content="https://pvrstudio.com/img/og.jpg">
+<link rel="canonical" href="https://pvrstudio.com/mastering">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" sizes="32x32" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="secundaria.css">
+<link rel="stylesheet" href="dimension.css">
+<style>
+/* lanzamientos masterizados: filas de a 3; cada fila que sigue se difumina (se aclara al pasar el cursor) */
+.mastered{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,2vw,32px) clamp(10px,1.8vw,28px)}
+.rel{display:flex;flex-direction:column;gap:12px;min-width:0;--fade:calc(1 - var(--row,0)*.32);
+  opacity:var(--fade);filter:blur(calc(var(--row,0)*1.6px)) grayscale(calc(var(--row,0)*.4));transition:opacity 1s var(--ease),filter .8s var(--ease),transform 1.2s var(--ease)}
+.rel.rv.on{opacity:var(--fade)}
+.rel.rv.on:hover,.rel.rv.on:focus-visible{opacity:1;filter:none}
+.rel .cv{position:relative;aspect-ratio:1;overflow:hidden;border:1px solid var(--line);background:#050505}
+.rel .cv img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) contrast(1.1);transition:filter .8s var(--ease),transform 1.2s var(--ease)}
+.rel:hover .cv img{filter:none;transform:scale(1.04)}
+.rel b{display:block;font-size:clamp(15px,1.6vw,24px);font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.rel small{display:block;margin-top:4px;font-family:var(--mono);font-size:clamp(9px,.8vw,11px);letter-spacing:.14em;text-transform:uppercase;color:var(--mute);line-height:1.5}
+@media (max-width:560px){.mastered{gap:18px 8px}.rel small{letter-spacing:.08em}}
+/* la última fila se funde hacia abajo en el humo */
+.mastered-wrap{position:relative}
+.mastered-wrap::after{content:"";position:absolute;left:-2%;right:-2%;bottom:-2px;height:22%;pointer-events:none;background:linear-gradient(0deg,#000 8%,rgba(0,0,0,0))}
+
+.order{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(32px,5vw,84px);align-items:start}
+@media (max-width:900px){.order{grid-template-columns:minmax(0,1fr)}}
+.order .txt{display:flex;flex-direction:column;gap:24px;position:sticky;top:110px}
+@media (max-width:900px){.order .txt{position:static}}
+.order h2{font-size:clamp(48px,7vw,116px);font-weight:300;letter-spacing:-.06em}
+.order .direct a{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<!-- paso entre páginas: va primero para que el humo esté desde el primer cuadro -->
+<script src="dimension.js"></script>
+<script>PVRDim.init({entry:'always'});</script>
+<canvas id="amb" class="dim-fx" aria-hidden="true"></canvas>
+<canvas id="art" class="dim-fx" aria-hidden="true"></canvas>
+<div class="cur" id="cur" aria-hidden="true"><i></i><b></b><span class="mono"></span></div>
+<div id="grain" aria-hidden="true"></div>
+
+<header class="top in">
+  <a class="brand" href="index.html" data-dim aria-label="PVR, volver al presskit">PVR</a>
+  <nav class="dims" aria-label="Páginas">
+    <a href="index.html" data-dim><i>01</i>Presskit</a>
+    <a href="mastering.html" data-dim aria-current="page"><i>02</i>Mastering</a>
+    <a href="clases.html" data-dim><i>03</i>Clases</a>
+  </nav>
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sheet">Menú</button>
+</header>
+<nav id="sheet" class="in" aria-label="Menú" hidden>
+  <a href="#servicios">Servicios</a><a href="#masters">Lanzamientos</a><a href="#pedido">Pedido</a>
+  <div class="sheet-dims"><span class="mono">Páginas</span>
+    <a href="index.html" data-dim><i>01</i>Presskit</a>
+    <a href="mastering.html" aria-current="page"><i>02</i>Mezcla y mastering</a>
+    <a href="clases.html" data-dim><i>03</i>Clases</a>
+  </div>
+</nav>
+
+<main class="dim-fx">
+  <section class="hero in">
+    <div class="art hero-piece" data-art="fondo" data-src="img/fondo/fondo-05.jpg" data-gain="1.1" aria-hidden="true"></div>
+    <p class="mono">02 — Estudio PVR</p>
+    <h1>Mezcla<br><em>y</em> mastering</h1>
+    <div class="row">
+      <p class="lead">El mismo criterio que PVR lleva a la cabina y al aula, aplicado a tu música. Para techno, industrial y electrónica oscura, con foco en el peso, la textura y la claridad.</p>
+      <div class="acts"><a class="pill solid" href="#pedido">Pedir presupuesto ↓</a><a class="pill" href="#servicios">Ver servicios</a></div>
+    </div>
+  </section>
+
+  <section class="in pad" id="servicios" style="padding-top:clamp(40px,5vw,80px)">
+    <div class="art chain-r" data-art="cadena" aria-hidden="true"></div>
+    <div class="sec-head rv"><h2>Servicios</h2><span class="mono">Elegí cómo llega tu track</span></div>
+    <div class="cards3">
+      <article class="card rv">
+        <span class="n">01</span>
+        <h3>Master</h3>
+        <p>Tu track ya mezclado, terminado para sonar con peso en el club y prolijo en plataformas.</p>
+        <dl>
+          <div><dt>Mandás</dt><dd>El track mezclado en un solo archivo estéreo (WAV), sin limitador en el master.</dd></div>
+          <div><dt>Recibís</dt><dd>El master final en WAV, listo para lanzar.</dd></div>
+        </dl>
+        <button class="pill" type="button" data-pick="sv-master">Pedir master →</button>
+      </article>
+      <article class="card rv">
+        <span class="n">02</span>
+        <h3>Master por stems</h3>
+        <p>Para cuando la mezcla está cerca pero necesita más control: se masteriza a partir de grupos separados y se corrige el balance entre ellos.</p>
+        <dl>
+          <div><dt>Mandás</dt><dd>Los stems agrupados (por ejemplo: kick, bajo, percusión, sintes, ambientes y efectos), todos desde el mismo punto de inicio.</dd></div>
+          <div><dt>Recibís</dt><dd>El master final en WAV, con el balance ajustado.</dd></div>
+        </dl>
+        <button class="pill" type="button" data-pick="sv-stems">Pedir master por stems →</button>
+      </article>
+      <article class="card rv">
+        <span class="n">03</span>
+        <h3>Mezcla + master</h3>
+        <p>El track completo, de las pistas sueltas al master final: balance, espacio, texturas y distorsión ubicadas con intención.</p>
+        <dl>
+          <div><dt>Mandás</dt><dd>Todas las pistas del proyecto exportadas por separado, más referencias si las tenés.</dd></div>
+          <div><dt>Recibís</dt><dd>La mezcla y el master final en WAV.</dd></div>
+        </dl>
+        <button class="pill" type="button" data-pick="sv-mezcla">Pedir mezcla + master →</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="in" style="padding-bottom:clamp(88px,11vw,170px)">
+    <ol class="steps rv">
+      <li><b>01</b><span>Completás el formulario con el link a tu track o tus stems.</span></li>
+      <li><b>02</b><span>Recibís una respuesta con propuesta, tiempos y presupuesto.</span></li>
+      <li><b>03</b><span>Se trabaja el material y recibís tu track terminado.</span></li>
+    </ol>
+  </section>
+
+  <!-- LANZAMIENTOS MASTERIZADOS: se cargan desde la lista MASTERS (abajo, en el script) -->
+  <section class="in pad" id="masters" style="padding-top:0">
+    <div class="art chain-l" data-art="cadena" aria-hidden="true"></div>
+    <div class="art ghost" data-art="fondo" data-src="img/fondo/fondo-07.jpg" data-gain=".7" aria-hidden="true"></div>
+    <div class="sec-head rv"><h2>Masterizados por PVR</h2><span class="mono">Lanzamientos</span></div>
+    <div class="mastered-wrap"><div class="mastered" id="mastered"></div></div>
+  </section>
+
+  <section class="in pad" id="pedido" style="padding-top:0">
+    <div class="order">
+      <div class="txt rv">
+        <p class="mono">Pedido</p>
+        <h2>Contame de tu track</h2>
+        <p class="lead">Elegí el servicio, dejá el link al material y te respondo con propuesta, tiempos y presupuesto.</p>
+        <p class="lead direct">¿Preferís escribir directo? <a href="mailto:contact.leopvr@gmail.com?subject=Mezcla%20y%20mastering">contact.leopvr@gmail.com</a></p>
+        <div class="art block" data-art="fondo" data-src="img/fondo/fondo-01.jpg" data-gain="1.2" aria-hidden="true"></div>
+      </div>
+      <form id="studioForm" class="rv" novalidate>
+        <fieldset>
+          <legend class="mono">Servicio</legend>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="servicio" id="sv-master" value="Master" checked><b>Master</b><small>Track mezclado, listo para lanzar.</small></label>
+            <label class="opt"><input type="radio" name="servicio" id="sv-stems" value="Master por stems"><b>Master por stems</b><small>Más control desde grupos separados.</small></label>
+            <label class="opt"><input type="radio" name="servicio" id="sv-mezcla" value="Mezcla + master"><b>Mezcla + master</b><small>De las pistas al master final.</small></label>
+          </div>
+        </fieldset>
+        <div class="two">
+          <div class="f"><label class="mono" for="f-nombre">Nombre / proyecto</label><input id="f-nombre" name="nombre" type="text" autocomplete="name" required placeholder="Tu nombre o alias"></div>
+          <div class="f"><label class="mono" for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required placeholder="tu@mail.com"></div>
+        </div>
+        <div class="two">
+          <div class="f"><label class="mono" for="f-tracks">Cantidad de tracks</label><input id="f-tracks" name="tracks" type="number" min="1" inputmode="numeric" placeholder="1"></div>
+          <div class="f"><label class="mono" for="f-fecha">Fecha ideal de entrega</label><input id="f-fecha" name="entrega" type="text" placeholder="Ej.: fin de mes"></div>
+        </div>
+        <div class="f"><label class="mono" for="f-link">Link al material</label><input id="f-link" name="link" type="url" placeholder="Drive, WeTransfer o SoundCloud privado"></div>
+        <div class="f"><label class="mono" for="f-refs">Referencias</label><input id="f-refs" name="referencias" type="text" placeholder="Tracks o artistas que te sirvan de guía"></div>
+        <div class="f"><label class="mono" for="f-msg">Mensaje</label><textarea id="f-msg" name="mensaje" placeholder="Contame sobre el proyecto y qué buscás"></textarea></div>
+        <div class="hp" aria-hidden="true"><label for="f-web">No completar</label><input id="f-web" name="_honey" type="text" tabindex="-1" autocomplete="off"></div>
+        <button class="send" type="submit" id="sendBtn">Enviar pedido <span aria-hidden="true">→</span></button>
+        <p id="fstatus" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <nav class="more" aria-label="Otras páginas">
+    <a href="index.html" data-dim><span class="mono">01 — Volver</span><b>Presskit PVR</b></a>
+    <a href="clases.html" data-dim><span class="mono">03 — Aprender</span><b>Clases de producción</b></a>
+  </nav>
+</main>
+<footer class="in mono dim-fx"><span>PVR · Leonardo Peñalver</span><span>Buenos Aires · 2026</span></footer>
+
+<script type="module" src="escena-secundaria.js"></script>
+<script>
+(function(){
+  /* ---------- LANZAMIENTOS MASTERIZADOS ----------
+     Para sumar uno, agregá una línea a la lista (la tapa va en img/masters/):
+     { titulo:'Nombre del tema', artista:'Artista', sello:'Sello · 2026', tapa:'img/masters/archivo.jpg', link:'https://...' },
+     Van en filas de a 3: cada fila que sigue se ve más difuminada (al pasar el cursor se aclara). */
+  var MASTERS = [
+    { titulo:'Henri Piper', artista:'Federico Guerrero', sello:'Gomboc Records', tapa:'img/masters/henri-piper.jpg', link:'https://soundcloud.com/gombocrec/federico-guerrero-henri-piper' },
+    { titulo:'Inerte', artista:'Mar de los Ángeles, PVR, INCÓGNITA', sello:'Self release', tapa:'img/masters/inerte.jpg', link:'https://soundcloud.com/pvr_trax/mar-pvr-incognita' },
+    { titulo:'Loza Industrial', artista:'Various Artists', sello:'Tekgen Records · TKG018', tapa:'img/masters/loza-industrial.jpg', link:'https://soundcloud.com/tekgenacademy/sets/tkg018-various-artists-loza' },
+    { titulo:'Reflexión', artista:'PPZZ', sello:'EP · PPZZ001', tapa:'img/masters/reflexion.jpg', link:'https://soundcloud.com/ppedrazzini/sets/reflexion' },
+    { titulo:'Todo es temporal', artista:'PVR', sello:'Álbum · BeTechno', tapa:'img/masters/todo-es-temporal.jpg', link:'https://soundcloud.com/pvr_trax/sets/pvr-todo-es-temporal-album' },
+    { titulo:'Mind Your Own Business', artista:'PVR', sello:'Paranoid Rec.', tapa:'img/masters/mind-your-own-business.jpg', link:'https://soundcloud.com/paranoid-techno/pvr-mind-your-own-business-1' },
+    { titulo:'1024 Volts (PVR Remix)', artista:'Lana Forrer', sello:'Death Noise Records · DNR010', tapa:'img/masters/1024-volts-pvr-remix.jpg', link:'https://soundcloud.com/nachtsieger/premiere-lana-forrer-1024-volt-pvr-remix-dnr010' },
+  ];
+  var box = document.getElementById('mastered'), html = '';
+  MASTERS.forEach(function(m, i){
+    var row = Math.floor(i/3), st = ' style="--row:'+row+'"';
+    var inner = '<div class="cv"><img src="'+m.tapa+'" alt="Tapa de '+m.titulo+'" loading="lazy"></div><div><b>'+m.titulo+'</b><small>'+m.artista+(m.sello ? ' · '+m.sello : '')+'</small></div>';
+    html += m.link ? '<a class="rel rv"'+st+' href="'+m.link+'" target="_blank" rel="noopener" data-label="Escuchar">'+inner+'</a>' : '<div class="rel rv"'+st+'>'+inner+'</div>';
+  });
+  box.innerHTML = html;
+
+  /* ---------- menú del celular ---------- */
+  var btn = document.getElementById('menuBtn'), sheet = document.getElementById('sheet');
+  btn.addEventListener('click', function(){ var open = sheet.hidden; sheet.hidden = !open; btn.setAttribute('aria-expanded', String(open)); btn.textContent = open ? 'Cerrar' : 'Menú'; });
+  sheet.addEventListener('click', function(e){ if(e.target.closest('a')){ sheet.hidden = true; btn.setAttribute('aria-expanded','false'); btn.textContent = 'Menú'; } });
+
+  /* ---------- elegir servicio desde las tarjetas ---------- */
+  document.querySelectorAll('[data-pick]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.getElementById(b.dataset.pick).checked = true;
+      document.getElementById('pedido').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+      setTimeout(function(){ document.getElementById('f-nombre').focus({preventScroll:true}); }, 700);
+    });
+  });
+
+  /* ---------- aparecer al bajar ---------- */
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); } }); }, {rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+
+  /* ---------- formulario → mail de PVR ----------
+     Se envía con FormSubmit (formsubmit.co). La primera vez que alguien lo use online, FormSubmit manda un mail
+     de activación a contact.leopvr@gmail.com: hay que confirmarlo una vez. Si falla, se ofrece el mail ya escrito. */
+  var TO = 'contact.leopvr@gmail.com', form = document.getElementById('studioForm'), st = document.getElementById('fstatus'), sendBtn = document.getElementById('sendBtn');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var d = {}; new FormData(form).forEach(function(v,k){ d[k] = String(v).trim(); });
+    if(d._honey) return;
+    if(!d.nombre){ st.textContent = 'Falta tu nombre o el de tu proyecto.'; document.getElementById('f-nombre').focus(); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email || '')){ st.textContent = 'Revisá el email: lo necesito para responderte.'; document.getElementById('f-email').focus(); return; }
+    var subject = 'Pedido de ' + d.servicio + ' — ' + d.nombre;
+    var body = 'Servicio: '+d.servicio+'\nNombre / proyecto: '+d.nombre+'\nEmail: '+d.email+'\nCantidad de tracks: '+(d.tracks||'-')+'\nFecha ideal de entrega: '+(d.entrega||'-')+'\nLink al material: '+(d.link||'-')+'\nReferencias: '+(d.referencias||'-')+'\n\nMensaje:\n'+(d.mensaje||'-');
+    function fallback(){
+      st.innerHTML = 'No se pudo enviar desde acá. <a href="mailto:'+TO+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)+'">Abrí tu mail con el pedido ya escrito</a> o escribí a '+TO+'.';
+      sendBtn.disabled = false;
+    }
+    sendBtn.disabled = true; st.textContent = 'Enviando…';
+    var payload = { _subject:subject, _template:'table', _captcha:'false', Servicio:d.servicio, Nombre:d.nombre, email:d.email, Tracks:d.tracks||'-', Entrega:d.entrega||'-', Material:d.link||'-', Referencias:d.referencias||'-', Mensaje:d.mensaje||'-' };
+    try{
+      fetch('https://formsubmit.co/ajax/' + TO, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)})
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+        .then(function(j){ if(j && (j.success === true || j.success === 'true')){ st.textContent = 'Pedido enviado. Te respondo a ' + d.email + '.'; form.reset(); sendBtn.disabled = false; } else fallback(); })
+        .catch(fallback);
+    }catch(err){ fallback(); }
+  });
+
+  PVRDim.ambient(document.getElementById('amb'), {variant:0, over:true});
+})();
+</script>
+</body>
+</html>

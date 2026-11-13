@@ -1,0 +1,30 @@
+/* PVR · Dimensiones — estilos compartidos por las tres páginas: el paso entre páginas y el menú de páginas */
+
+/* al salir: la página se apaga suave, se desenfoca y sube apenas, como si se fuera con el humo */
+.dim-fx{transition:transform .2s,filter .2s,opacity .2s}
+html.dim-out .dim-fx{transform:translateY(-10px);filter:blur(7px) brightness(.45);opacity:.15;
+  transition:transform 1.3s cubic-bezier(.4,0,.6,1),filter 1.3s cubic-bezier(.4,0,.6,1),opacity 1.3s cubic-bezier(.4,0,.6,1)}
+/* al entrar: aparece desde el humo, desenfocada, y se asienta */
+html.dim-in .dim-fx{transform:translateY(12px);filter:blur(8px) brightness(.4);opacity:0;transition:none}
+html:not(.dim-in):not(.dim-out) .dim-fx{transition:transform 1.6s cubic-bezier(.19,1,.22,1),filter 1.6s cubic-bezier(.19,1,.22,1),opacity 1.4s}
+/* tapa negra hasta que aparece el humo */
+html.dim-in body::after{content:"";position:fixed;inset:0;z-index:119;background:#000;pointer-events:none}
+@media (prefers-reduced-motion:reduce){ html.dim-out .dim-fx,html.dim-in .dim-fx{transform:none;filter:none;animation:none} }
+
+/* menú de páginas: 02 Mastering · 03 Clases (se distingue de las secciones del presskit) */
+.dims{display:flex;align-items:center;gap:8px;flex:none}
+.dims a{display:inline-flex;align-items:center;gap:9px;min-height:36px;padding:7px 14px 7px 11px;border:1px solid currentColor;border-radius:75px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;opacity:.8;transition:opacity .4s,background .5s,color .5s}
+.dims a i{font-style:normal;font-size:9px;letter-spacing:.1em;opacity:.55}
+.dims a::after{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.6;transition:transform .5s cubic-bezier(.19,1,.22,1)}
+.dims a:hover{opacity:1;background:#fff;color:#000}
+.dims a:hover::after{transform:scale(1.8)}
+.dims a[aria-current="page"]{opacity:1;background:#fff;color:#000}
+.dims .sep{width:1px;height:22px;background:currentColor;opacity:.35;margin-inline:6px}
+
+/* menú del celular: bloque de páginas */
+.sheet-dims{display:flex;flex-direction:column;gap:2px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.sheet-dims .mono{margin-bottom:8px}
+.sheet-dims a{display:flex!important;align-items:baseline;gap:14px;font-size:clamp(30px,9vw,46px)!important;font-weight:200!important}
+.sheet-dims a i{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--mute)}
+.sheet-dims a[aria-current="page"]{opacity:.45}

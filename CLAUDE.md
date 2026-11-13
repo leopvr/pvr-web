@@ -19,10 +19,21 @@ Leé esto antes de tocar nada. Hablá siempre en español rioplatense.
 - Sin build: es HTML estático. `.assetsignore` deja afuera CLAUDE.md, README, herramientas.
 - Ver local: `python3 -m http.server 8000` → http://localhost:8000
 - Pasar borrador a online: `git checkout main && git merge borrador && git push` (solo con OK de Leo).
+- `v1.html` — la web anterior (V1), guardada como referencia.
+
+## Versiones
+- El commit que se sube a online se llama `pvrstudio vX.Y.Z` y lleva una etiqueta `vX.Y.Z`.
+  - X = versión de la web (2 = la actual en 3D) · Y = actualizaciones grandes · Z = cambios chicos o arreglos de bugs.
+- Última subida: **pvrstudio v2.0.0** (presskit V2 + páginas Mezcla y mastering y Clases + paso entre páginas).
 
 ## Estructura
-- `index.html` — toda la página, con CSS y JS adentro. Secciones en orden:
+- `index.html` — el presskit (V2: escena 3D en WebGL con three.js, cadenas, niebla, PVR en hilos), con CSS y JS adentro. Secciones en orden:
   `#inicio` (portada con video) → Manifiesto (video de fondo) → `#sobre` → `#en-la-pista` (4 videos cortos) → `#sonido` (filas corridas INTENSO / TEXTURAS / CATARSIS…) → `#trayectoria` → `#musica` (lanzamientos) → `#sets` (Black Room Radio destacado + ASFIXIA + Droxcast) → `#docencia` → `#rider` (dibujo SVG propio de 3 CDJ + mixer) → `#booking`.
+- Páginas secundarias (en el menú como "02 Mastering" y "03 Clases"; en la portada solo links discretos y el bloque "Además" antes del pie):
+  - `mastering.html` — Mezcla y mastering: Master / Master por stems / Mezcla + master, lanzamientos masterizados (lista `MASTERS` en el script; tapas en `img/masters/`: Henri Piper, Inerte, Loza Industrial; para sumar uno usar la skill `soundcloud-tapa` en `.claude/skills/`) y formulario a contact.leopvr@gmail.com por FormSubmit.
+  - `clases.html` — Clases de producción en TEKGEN, con mensaje precargado y redes (objeto `TEKGEN` en el script): Instagram https://www.instagram.com/tekgen_ · WhatsApp +54 9 11 6795-9065 · sin TikTok. Logo: `img/tekgen-logo.png` (blanco, achicado del original en `../Tekgen logos/`).
+  - `escena-secundaria.js` — 3D de las secundarias: los fondos generados (`img/fondo/`) recortados sin fondo, grandes y difuminados, con partículas finas, dibujados detrás del humo (`#art` abajo, `#amb` arriba y transparente), que se desprenden por los bordes y se deshacen con el cursor, y cadenas con espinas colgando. Se ubican con huecos `<div class="art" data-art="fondo" data-src="…">` / `data-art="cadena"`. (Los artefactos de cromo se probaron y no gustaron.)
+  - `secundaria.css` = base de esas dos páginas. `dimension.js` + `dimension.css` = paso entre páginas: se desvanece en partículas y humo, 3 variantes (Ceniza / Niebla / Grano; en local aparece un selector abajo a la izquierda, la elegida se guarda en el navegador) y fondo de humo de las secundarias; se usa en las tres. Un link cruza de página con el efecto si tiene `data-dim`.
 - `img/` — fotos procesadas. `og.jpg` = imagen al compartir el link.
 - `video/` — loops `.mp4` (8 s, B&N, sin audio) + imagen de espera `.jpg` con el mismo nombre.
   - Portada: `hero.mp4` (compu, elegido "H2": primer plano en cabina con la cara iluminada) y `hero-v.mp4` (celular, "V5": láseres sobre el público). El JS elige según orientación (`data-land` / `data-port`).
