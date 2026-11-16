@@ -7,6 +7,8 @@ html.dim-out .dim-fx{transform:translateY(-10px);filter:blur(7px) brightness(.45
 /* al entrar: aparece desde el humo, desenfocada, y se asienta */
 html.dim-in .dim-fx{transform:translateY(12px);filter:blur(8px) brightness(.4);opacity:0;transition:none}
 html:not(.dim-in):not(.dim-out) .dim-fx{transition:transform 1.6s cubic-bezier(.19,1,.22,1),filter 1.6s cubic-bezier(.19,1,.22,1),opacity 1.4s}
+/* los lienzos 3D se mueven con la página en cada cuadro: su desplazamiento nunca se anima (si no, quedan atrasados) */
+#gl,#art{transition-property:filter,opacity !important}
 /* tapa negra hasta que aparece el humo */
 html.dim-in body::after{content:"";position:fixed;inset:0;z-index:119;background:#000;pointer-events:none}
 @media (prefers-reduced-motion:reduce){ html.dim-out .dim-fx,html.dim-in .dim-fx{transform:none;filter:none;animation:none} }

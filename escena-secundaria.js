@@ -48,7 +48,7 @@ float lum(vec3 c){return dot(c,vec3(.299,.587,.114));}
 `;
 function fondo(el){
   const r = el.getBoundingClientRect();
-  const N = Math.round(THREE.MathUtils.clamp(Math.min(r.width, r.height)/(touch ? 3 : 2.4), 110, touch ? 190 : 300));
+  const N = Math.round(THREE.MathUtils.clamp(Math.min(r.width, r.height)/(touch ? 3.2 : 2.8), 110, touch ? 170 : 240));
   const uvs = new Float32Array(N*N*2), rnd = new Float32Array(N*N);
   for(let j=0,k=0;j<N;j++) for(let i=0;i<N;i++,k++){ uvs[k*2] = (i + Math.random())/N; uvs[k*2+1] = (j + Math.random())/N; rnd[k] = Math.random(); }
   const g = new THREE.BufferGeometry();
@@ -191,7 +191,7 @@ document.querySelectorAll('.art[data-art]').forEach(el=>{
   cells.push({el, scene, cam, obj:null, kind, push:0, tilt:new V2()});
 });
 
-function resize(){ renderer.setSize(innerWidth, innerHeight, false); }
+function resize(){ renderer.setSize(innerWidth, innerHeight, false); canvas.style.height = innerHeight + 'px'; }
 addEventListener('resize', resize); resize();
 const clock = new THREE.Clock(); let t = 0, run = true;
 const startAt = performance.now() + (document.documentElement.classList.contains('dim-in') ? 700 : 0);
@@ -206,6 +206,8 @@ const TAN = Math.tan(15*Math.PI/180);
 function loop(){
   if(!run) return;
   const dt = Math.min(clock.getDelta(), .05); t += reduce ? dt*.2 : dt;
+  // el lienzo se ubica donde está la pantalla en este cuadro; hasta el próximo, el navegador lo mueve junto con el texto
+  canvas.style.transform = 'translate3d(0,' + scrollY + 'px,0)';
   renderer.setScissor(0,0,innerWidth,innerHeight); renderer.setViewport(0,0,innerWidth,innerHeight); renderer.clear();
   let built = false;
   for(const c of cells){

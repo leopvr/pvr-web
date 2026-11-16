@@ -114,7 +114,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rv{opacity:1;transform:none;transition:none}}
 
 /* escena 3D: fondos generados hechos partículas y cadenas, encima del humo, debajo del texto */
-#art{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}   /* imágenes y cadenas: detrás del humo */
+#art{position:absolute;top:0;left:0;width:100%;height:100vh;display:block;z-index:0;pointer-events:none;will-change:transform}   /* se desplaza con la página: va al mismo ritmo que el texto */   /* imágenes y cadenas: detrás del humo */
 .art{position:absolute;z-index:0;touch-action:pan-y}
 .art{pointer-events:none}
 .hero{position:relative}

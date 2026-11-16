@@ -24,7 +24,9 @@ Leé esto antes de tocar nada. Hablá siempre en español rioplatense.
 ## Versiones
 - El commit que se sube a online se llama `pvrstudio vX.Y.Z` y lleva una etiqueta `vX.Y.Z`.
   - X = versión de la web (2 = la actual en 3D) · Y = actualizaciones grandes · Z = cambios chicos o arreglos de bugs.
-- Última subida: **pvrstudio v2.0.0** (presskit V2 + páginas Mezcla y mastering y Clases + paso entre páginas).
+- En cada subida, actualizar el `?v=X.Y.Z` de los CSS/JS propios (`dimension.*`, `secundaria.css`, `escena-secundaria.js`) en las tres páginas: así nadie ve archivos viejos guardados en su navegador.
+- Los lienzos 3D (`#gl`, `#art`) no son fijos: se mueven con la página y en cada cuadro se reubican donde está la pantalla, así las imágenes van al mismo ritmo que el texto.
+- Última subida: **pvrstudio v2.0.1** (carteles y fotos fijos, cadenas de los carteles quietas, imágenes al ritmo del texto, mejoras de rendimiento). Antes: v2.0.0 (presskit V2 + Mezcla y mastering + Clases + paso entre páginas).
 
 ## Estructura
 - `index.html` — el presskit (V2: escena 3D en WebGL con three.js, cadenas, niebla, PVR en hilos), con CSS y JS adentro. Secciones en orden:

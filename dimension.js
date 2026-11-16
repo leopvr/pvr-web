@@ -342,7 +342,7 @@
     var q = compile(gl, VEIL_VS, AMB_FS), pt = compile(gl, AMB_PART_VS, PART_FS);
     if(!q || !pt){ c.style.background = '#000'; return; }
     var qb = quadBuf(gl), n = touch ? 500 : 1400, sb = seedBuf(gl, n);
-    var scale = touch ? .75 : 1;   // el humo es suave: se puede dibujar a menos resolución
+    var scale = touch ? .6 : .75;   // el humo es suave: se dibuja a menos resolución y no se nota
     var mx = .5, my = .5, tx = .5, ty = .5, sc = 0, run = true;
     addEventListener('pointermove', function(e){ tx = e.clientX/innerWidth; ty = 1 - e.clientY/innerHeight; }, {passive:true});
     document.addEventListener('visibilitychange', function(){ run = !document.hidden; if(run) requestAnimationFrame(frame); });

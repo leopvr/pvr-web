@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="dimension.css">
+<link rel="stylesheet" href="dimension.css?v=2.0.1">
 <script>try{var dm=JSON.parse(sessionStorage.getItem('pvr-dim')||'null');if(dm&&Date.now()-dm.t<9000)document.documentElement.classList.add('dim-in')}catch(e){}</script>
 <style>
 /*
@@ -45,7 +45,7 @@ p{margin:0}
 .mono{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
 .lead{font-size:clamp(17px,1.4vw,21px);font-weight:300;line-height:1.6;color:#cfceca;max-width:60ch}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+#gl{position:absolute;top:0;left:0;width:100%;height:100vh;display:block;z-index:0;will-change:transform}   /* se desplaza con la página: va al mismo ritmo que el texto */
 main,footer{position:relative;z-index:10}
 .gl{position:relative;min-width:0}
 .dif{mix-blend-mode:difference;color:#fff}
@@ -297,7 +297,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 </head>
 <body>
 <!-- paso entre páginas: va primero para que el humo esté desde el primer cuadro -->
-<script src="dimension.js"></script>
+<script src="dimension.js?v=2.0.1"></script>
 <script>PVRDim.init({ready: new Promise(function(r){ addEventListener('pvr:ready', r, {once:true}); })});</script>
 <canvas id="gl" class="dim-fx" aria-hidden="true"></canvas>
 <div class="cur" id="cur" aria-hidden="true"><i></i><b></b><span class="mono" id="curLabel"></span></div>
@@ -608,11 +608,12 @@ float hoverBlur(inout vec4 cp, float seed, float t){
 const VERT_UV = `varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 
 // ================= renderer (resolución completa: grano fino, nada de píxel) =================
+const glEl = document.getElementById('gl');
 const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('gl'), antialias:true, powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));     // grano al píxel real de la pantalla: más fino
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = .6;
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = false;   // apagadas: casi no se veían y costaban otra pasada entera de las cadenas
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
@@ -698,7 +699,7 @@ function addChain(ids, scale, near){
   const mesh = new THREE.InstancedMesh(near ? LINK_NEAR : LINK_FAR, near ? chrome : chromeFar, ids.length-1);
   mesh.castShadow = near; mesh.frustumCulled = false; scene.add(mesh);
   // active: sólo se simula y dibuja mientras está en pantalla. last: para moverla entera mientras duerme
-  chains.push({ids, scale, mesh, twist:ids.map(()=> (Math.random()-.5)*.35), active:true, last:P[ids[0]].p.clone()});
+  chains.push({ids, scale, mesh, near, twist:ids.map(()=> (Math.random()-.5)*.35), active:true, last:P[ids[0]].p.clone()});
   for(let i=0;i<ids.length-1;i++) C.push([ids[i], ids[i+1], PITCH*scale]);
   return ids;
 }
@@ -911,15 +912,7 @@ function makeScreen(el, kind){
     }
     if(!r.vis) return;
     group.position.set(r.x, r.y, 0);
-    // leve 3D: las fotos con data-tilt se inclinan hacia el cursor cuando está cerca
-    let tx = 0, ty = 0;
-    if(tilt){
-      const dx = (GU.mouseW.value.x - r.x)/r.w, dy = (GU.mouseW.value.y - r.y)/r.h, near = Math.max(0, 1 - Math.hypot(dx,dy)/1.3);
-      ty = THREE.MathUtils.clamp(dx,-1,1)*.24*near; tx = -THREE.MathUtils.clamp(dy,-1,1)*.18*near;
-    }
-    item.rot.x += (tx - item.rot.x)*.06; item.rot.y += (ty - item.rot.y)*.06;
-    group.rotation.x = (style === 'bare' ? 0 : THREE.MathUtils.clamp(-GU.vel.value*.45, -.16, .16)) + item.rot.x;
-    group.rotation.y = item.rot.y;
+    // fijas en la página: ni se inclinan con el scroll ni con el cursor (el efecto de la imagen queda igual)
     screen.scale.set(r.w, r.h, 1);
     U.planeA.value = r.w/r.h;
     const a = texAspect(U.map.value); if(a) U.texA.value = a;
@@ -952,10 +945,10 @@ function makeScreen(el, kind){
       if(item.ropes) item.ropes.forEach((rp,i)=>{
         const eye = group.localToWorld(tmpA.copy(item.eyes[i].position));
         P[rp.ids[rp.ids.length-1]].pin.copy(eye);
-        P[rp.ids[0]].pin.copy(eye).add(rp.off).add(SWAY.set(Math.sin(T*.33+i*2.1)*1.3, 0, Math.cos(T*.27+i)*.9));   // el anclaje se hamaca
+        P[rp.ids[0]].pin.copy(eye).add(rp.off);                                  // anclaje fijo: la cadena cuelga quieta
       });
       if(item.wires){
-        const pa = item.wires.geometry.attributes.position, sway = GU.vel.value*1.5 + Math.sin(T*.4 + U.vseed.value)*.5;
+        const pa = item.wires.geometry.attributes.position, sway = 0;
         for(let i=0;i<2;i++){ const e = group.localToWorld(tmpA.copy(item.eyes[i].position)); pa.setXYZ(i*2, e.x, e.y, e.z); pa.setXYZ(i*2+1, e.x*1.02 + sway, e.y + 14, e.z - 4); }
         pa.needsUpdate = true;
       }
@@ -1122,8 +1115,7 @@ function makeRelief(el){
     U.lines.value = Math.round(Math.min(240, el.clientHeight/3.6));
     U.mouseUv.value.set((GU.mouseW.value.x-(R0.x-R0.w/2))/R0.w, (GU.mouseW.value.y-(R0.y-R0.h/2))/R0.h);
     const mx = GU.mouseW.value.x > 90 ? 0 : GU.mouseW.value.x/(R0.w/2), my = GU.mouseW.value.y > 90 ? 0 : GU.mouseW.value.y/(R0.h/2);
-    rot.y += (mx*.12 - rot.y)*.05; rot.x += (-my*.08 - rot.x)*.05;
-    mesh.rotation.set(rot.x, rot.y, 0);
+    mesh.rotation.set(0, 0, 0);                                               // fija: sin inclinarse con el cursor
   }});
 }
 
@@ -1351,7 +1343,7 @@ const titleReady = makeTitle(document.querySelector('[data-gl="title"]'));
 
 function resize(){
   const w = innerWidth, h = innerHeight;
-  renderer.setSize(w, h, false); composer.setSize(w, h);
+  renderer.setSize(w, h, false); composer.setSize(w, h); glEl.style.height = h + 'px';
   const pr = renderer.getPixelRatio();
   GU.res.value.set(Math.floor(w*pr), Math.floor(h*pr)); finalPass.uniforms.res.value.copy(GU.res.value);
   camera.aspect = w/h; camera.updateProjectionMatrix(); GU.aspect.value = w/h;
@@ -1366,7 +1358,8 @@ const mouse = {x:0, y:0, px:-1, py:-1, active:false, cx:-100, cy:-100};
 const cur = document.getElementById('cur'), curLabel = document.getElementById('curLabel');
 const ray = new THREE.Raycaster(), ndc = new V2(), tmpB = new V3();
 function pick(cx, cy){ ndc.set(cx/innerWidth*2-1, -(cy/innerHeight*2-1)); ray.setFromCamera(ndc, camera); return ray.intersectObjects(pickables.filter(m=>m.parent.visible))[0]; }
-addEventListener('pointermove', e=>{ mouse.cx = e.clientX; mouse.cy = e.clientY; mouse.x = e.clientX/innerWidth*2-1; mouse.y = -(e.clientY/innerHeight*2-1); mouse.active = true; }, {passive:true});
+addEventListener('pointermove', e=>{ mouse.cx = e.clientX; mouse.cy = e.clientY; mouse.x = e.clientX/innerWidth*2-1; mouse.y = -(e.clientY/innerHeight*2-1); mouse.active = true; mouse.moved = true; }, {passive:true});
+addEventListener('scroll', ()=>{ mouse.moved = true; }, {passive:true});
 document.addEventListener('pointerleave', ()=>{ mouse.active = false; });
 function screenDist(p){ tmpB.copy(p).project(camera); return Math.hypot((tmpB.x-mouse.x)*camera.aspect, tmpB.y-mouse.y); }
 addEventListener('pointerdown', e=>{
@@ -1432,8 +1425,9 @@ function step(t){
   }
 }
 const M = new THREE.Matrix4(), X = new V3(), Y = new V3(), Z = new V3(), x2 = new V3(), z2 = new V3(), HINT = new V3(0,0,1), ALT = new V3(1,0,0), MID = new V3();
-function drawChains(){
-  for(const {ids, scale, mesh, twist, active} of chains){
+function drawChains(all){
+  for(const {ids, scale, mesh, twist, active, frozen} of chains){
+    if(frozen && !all) continue;                                  // las quietas ya están dibujadas: solo se trasladan
     mesh.visible = active; if(!active) continue;
     for(let k=0;k<ids.length-1;k++){
       const a = P[ids[k]].p, b = P[ids[k+1]].p;
@@ -1452,6 +1446,13 @@ function drawChains(){
 const SHIFT = new V3();
 function wakeChains(){
   for(const ch of chains){
+    if(ch.frozen){                                                // quieta: se mueve entera con su cartel, sin física
+      ch.mesh.position.subVectors(P[ch.ids[ch.ids.length-1]].pin, ch.base);
+      tmpB.copy(P[ch.ids[ch.ids.length-1]].pin).project(camera); const yb = tmpB.y;
+      tmpB.copy(P[ch.ids[0]].pin).project(camera);
+      ch.mesh.visible = Math.min(yb, tmpB.y) < 1.3 && Math.max(yb, tmpB.y) > -1.3;
+      continue;
+    }
     const ref = P[ch.ids[0]].pin || P[ch.ids[0]].p;
     if(!ch.active){
       SHIFT.subVectors(ref, ch.last);
@@ -1471,6 +1472,8 @@ function wakeChains(){
 const clock = new THREE.Clock(); let t = 0, acc = 0, prevScroll = scrollY, vel = 0, frames = 0;
 const par = {x:0}, RM = {}, mN = new V2(9,9);
 function updateScene(dt){
+  // el lienzo se ubica donde está la pantalla en este cuadro; hasta el próximo, el navegador lo mueve junto con el texto
+  glEl.style.transform = 'translate3d(0,' + scrollY + 'px,0)';
   const dy = (scrollY - prevScroll)/innerHeight; prevScroll = scrollY;
   vel += (THREE.MathUtils.clamp(dy*8, -1.2, 1.2) - vel)*.12; GU.vel.value = reduce ? 0 : vel;
   scrollW = scrollY*PXW; GU.scroll.value = scrollY/innerHeight;
@@ -1504,7 +1507,8 @@ function updateScene(dt){
     if(!coverHold && coverItem.R.on){ coverAuto += dt; if(coverAuto > 3.4){ coverAuto = 0; setCover((coverNext+1)%COVERS.length); } }
   }
 
-  if(!touch){
+  if(!touch && mouse.moved){
+    mouse.moved = false;
     const h = mouse.active ? pick(mouse.cx, mouse.cy) : null;
     hovered = h ? h.object.userData.item : null;
     cur.style.transform = `translate(${mouse.cx}px,${mouse.cy}px)`;
@@ -1534,18 +1538,47 @@ function updateScene(dt){
   flash *= .9; flashLight.intensity = flash*20;
   finalPass.uniforms.flash.value = flash; finalPass.uniforms.time.value = t;
 }
+// calidad adaptable: mide cuánto tarda cada cuadro y, si la compu no llega, baja la resolución interna
+// (de a un paso, nunca por debajo de 1). En pantallas comunes casi no se nota; el grano sigue siendo fino.
+let frameMs = 16, adaptAt = 0, maxPR = renderer.getPixelRatio();
+function adapt(dt, now){
+  frameMs += (dt*1000 - frameMs)*.05;
+  if(now < adaptAt || document.hidden) return;
+  const pr = renderer.getPixelRatio();
+  if(frameMs > 22 && pr > 1){
+    const next = Math.max(1, pr - .25); renderer.setPixelRatio(next); composer.setPixelRatio(next); resize();
+    adaptAt = now + 2500; frameMs = 16;
+  }
+}
 function loop(){
-  const dt = Math.min(clock.getDelta(), .05); t += reduce ? dt*.25 : dt; acc += dt; GU.time.value = t;
+  const rawDt = clock.getDelta(), dt = Math.min(rawDt, .05); t += reduce ? dt*.25 : dt; acc += dt; GU.time.value = t;
+  if(acc > DT*2) acc = DT*2;                                       // si un cuadro tarda, no se acumulan pasos de física
   updateScene(dt);
   composer.render();
+  const now = performance.now(); if(!adaptAt) adaptAt = now + 3000; else adapt(rawDt, now);
   if(++frames === 4){ document.getElementById('boot').classList.add('off'); dispatchEvent(new Event('pvr:ready')); }
   requestAnimationFrame(loop);
 }
 for(const it of items) it.update(0);
 for(let i=0;i<400;i++) step(i*DT);
 setTimeout(()=>document.getElementById('boot').classList.add('off'), 6000);
+// las cadenas de los carteles se asientan y quedan quietas
+function freezeChains(){
+  for(const ch of chains) if(ch.near){
+    ch.frozen = true; ch.active = true; ch.base = P[ch.ids[ch.ids.length-1]].pin.clone(); ch.mesh.position.set(0,0,0);
+    for(const id of ch.ids) P[id].s = true;
+  }
+}
+function settleChains(){
+  for(const ch of chains) if(ch.near){ ch.frozen = false; ch.mesh.position.set(0,0,0); for(const id of ch.ids) P[id].s = false; }
+  for(const it of items) it.update(0);
+  for(let i=0;i<260;i++) step(i*DT);
+  drawChains(true); freezeChains();
+}
+let settleT = 0;
+addEventListener('resize', ()=>{ clearTimeout(settleT); settleT = setTimeout(settleChains, 350); });
 titleReady.finally(()=>{
-  drawChains();
+  drawChains(true); freezeChains();
   (renderer.compileAsync ? renderer.compileAsync(scene, camera) : Promise.resolve()).catch(()=>{}).finally(()=>{ clock.getDelta(); requestAnimationFrame(loop); });
 });
 </script>
