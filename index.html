@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="dimension.css?v=2.0.1">
+<link rel="stylesheet" href="dimension.css?v=2.0.2">
 <script>try{var dm=JSON.parse(sessionStorage.getItem('pvr-dim')||'null');if(dm&&Date.now()-dm.t<9000)document.documentElement.classList.add('dim-in')}catch(e){}</script>
 <style>
 /*
@@ -297,7 +297,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 </head>
 <body>
 <!-- paso entre páginas: va primero para que el humo esté desde el primer cuadro -->
-<script src="dimension.js?v=2.0.1"></script>
+<script src="dimension.js?v=2.0.2"></script>
 <script>PVRDim.init({ready: new Promise(function(r){ addEventListener('pvr:ready', r, {once:true}); })});</script>
 <canvas id="gl" class="dim-fx" aria-hidden="true"></canvas>
 <div class="cur" id="cur" aria-hidden="true"><i></i><b></b><span class="mono" id="curLabel"></span></div>
@@ -910,7 +910,7 @@ function makeScreen(el, kind){
       if(r.vis && video.paused && video.src) video.play().catch(()=>{});
       else if(!r.vis && !video.paused) video.pause();
     }
-    if(!r.vis) return;
+    if(!r.vis && style !== 'chain') return;                         // los carteles con cadenas se ubican siempre (si no, la cadena queda en el centro)
     group.position.set(r.x, r.y, 0);
     // fijas en la página: ni se inclinan con el scroll ni con el cursor (el efecto de la imagen queda igual)
     screen.scale.set(r.w, r.h, 1);
@@ -1570,8 +1570,12 @@ function freezeChains(){
   }
 }
 function settleChains(){
-  for(const ch of chains) if(ch.near){ ch.frozen = false; ch.mesh.position.set(0,0,0); for(const id of ch.ids) P[id].s = false; }
   for(const it of items) it.update(0);
+  for(const ch of chains) if(ch.near){
+    ch.frozen = false; ch.mesh.position.set(0,0,0);
+    const A = P[ch.ids[0]].pin, B = P[ch.ids[ch.ids.length-1]].pin, n = ch.ids.length - 1;
+    ch.ids.forEach((id, k)=>{ const q = P[id]; q.s = false; if(!q.pin){ q.p.lerpVectors(A, B, k/n); q.o.copy(q.p); } });
+  }
   for(let i=0;i<260;i++) step(i*DT);
   drawChains(true); freezeChains();
 }
