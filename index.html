@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="dimension.css?v=2.0.2">
+<link rel="stylesheet" href="dimension.css?v=2.1.0">
 <script>try{var dm=JSON.parse(sessionStorage.getItem('pvr-dim')||'null');if(dm&&Date.now()-dm.t<9000)document.documentElement.classList.add('dim-in')}catch(e){}</script>
 <style>
 /*
@@ -283,6 +283,10 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
   .set,.set.feat{grid-row:auto;aspect-ratio:16/10}
   .rack{display:none}
 }
+/* espacio entre secciones (v2.1.0: más compacto) */
+.pad{padding-block:clamp(56px,6.5vw,104px)}            /* antes hasta 170px arriba y abajo: ~340px vacíos entre secciones */
+.man{min-height:0}                                      /* el manifiesto ya no ocupa una pantalla entera */
+.about,.teach{align-items:start}                         /* el texto arranca arriba, a la par de la foto (antes centrado y muy abajo) */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .sound .run,.marquee .track,.rig.draw .dev svg:first-child .s{animation:none}
@@ -297,7 +301,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 </head>
 <body>
 <!-- paso entre páginas: va primero para que el humo esté desde el primer cuadro -->
-<script src="dimension.js?v=2.0.2"></script>
+<script src="dimension.js?v=2.1.0"></script>
 <script>PVRDim.init({ready: new Promise(function(r){ addEventListener('pvr:ready', r, {once:true}); })});</script>
 <canvas id="gl" class="dim-fx" aria-hidden="true"></canvas>
 <div class="cur" id="cur" aria-hidden="true"><i></i><b></b><span class="mono" id="curLabel"></span></div>
@@ -690,6 +694,7 @@ const matteMat = new THREE.MeshStandardMaterial({color:0x0b0b0b, metalness:.7, r
 const P = [], C = [];
 function pt(v, pin=false){ P.push({p:v.clone(), o:v.clone(), w:pin?0:1, pin:pin?v.clone():null, s:false}); return P.length-1; }
 function rope(a, b, n, pinB=true){
+  n = Math.max(2, n|0);                                            // si una medida falla, igual se arma (después se re-asienta)
   const ids = [];
   for(let i=0;i<=n;i++){ const v = a.clone().lerp(b, i/n).add(new V3((Math.random()-.5)*.02,(Math.random()-.5)*.02,(Math.random()-.5)*.02)); ids.push(pt(v, i===0 || (i===n && pinB))); }
   return ids;
@@ -970,7 +975,7 @@ const COVERS = ['todo-es-temporal','tercer-mandamiento','pure-hell','sleep-anxie
 const COVER_LINKS = [...document.querySelectorAll('#tracks a')].map(a=>a.href);
 let coverItem = null, coverNext = 0, coverAuto = 0, coverHold = false;
 
-// ================= título: PVR (grueso, cerca del de la web online) que se deshace en hilos =================
+// ================= título: PVR grueso, quieto y traslúcido =================
 async function makeTitle(el){
   try{ await document.fonts.load('700 400px "Inter Tight"'); }catch(e){}
   const CW = 2000, CH = 640, c = document.createElement('canvas'); c.width = CW; c.height = CH;
@@ -986,87 +991,20 @@ async function makeTitle(el){
   const TU = {map:{value:tex}, crop:{value:new THREE.Vector4(x0/CW, 1-y1/CH, bw/CW, bh/CH)}, time:GU.time, mouseUv:{value:new V2(9,9)}, planeA:{value:bw/bh}, light:GU.light};
   const letters = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.ShaderMaterial({
     uniforms:TU, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexShader:VERT_UV,
-    fragmentShader:NOISE+`
-      uniform sampler2D map; uniform vec4 crop; uniform float time,planeA,light; uniform vec2 mouseUv; varying vec2 vUv;
+    fragmentShader:`
+      // PVR estático, completo y traslúcido: sin degradados, sin desenfoque, sin hilos ni partículas.
+      // Se suma como luz (mezcla aditiva), así deja ver lo que tiene detrás.
+      uniform sampler2D map; uniform vec4 crop; uniform float light; varying vec2 vUv;
+      const float OPACITY = .55;                                       // traslúcido: 1 = blanco lleno
       void main(){
-        vec2 uv=vUv, d=uv-mouseUv; d.x*=planeA; float r=length(d);
-        uv+=normalize(d+1e-5)*vec2(1./planeA,1.)*smoothstep(.3,0.,r)*.02;
-        float a=texture2D(map,crop.xy+clamp(uv,0.,1.)*crop.zw).r;
-        float dis=smoothstep(.0,.6,vUv.y);
-        float n=h21(gl_FragCoord.xy+floor(time*10.)*vec2(3.1,7.7));
-        a*=smoothstep(n-.08,n+.08,dis*1.06);
-        float shade=.42+.38*smoothstep(.2,1.,vUv.y);
-        gl_FragColor=vec4(vec3(a*shade*(.75+.25*light)),1.);
+        float a=texture2D(map, crop.xy+clamp(vUv,0.,1.)*crop.zw).r;
+        gl_FragColor=vec4(vec3(a*OPACITY*(.75+.25*light)),1.);
       }`
   }));
   letters.renderOrder = 30; scene.add(letters);
-  const NS = touch ? 1100 : 2200, SEG = 40, pos = new Float32Array(NS*SEG*2*3), seed = new Float32Array(NS*SEG*2);
-  let k = 0, tries = 0;
-  for(let s=0; s<NS && tries<900000; tries++){
-    const px = x0 + Math.random()*bw, py = y0 + Math.random()*bh;
-    if(d[((py|0)*CW+(px|0))*4] < 128) continue;
-    const v = (y1-py)/bh; if(v > .6 || Math.random() > Math.pow(1-v/.6,.6)) continue;
-    const u = (px-x0)/bw, sd = Math.random();
-    for(let j=0;j<SEG;j++) for(const q of [j/SEG,(j+1)/SEG]){ pos[k*3]=u; pos[k*3+1]=v; pos[k*3+2]=q; seed[k]=sd; k++; }
-    s++;
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos.subarray(0,k*3),3)); geo.setAttribute('seed', new THREE.BufferAttribute(seed.subarray(0,k),1));
-  const SU = {time:GU.time, vel:GU.vel, center:{value:new V3()}, pw:{value:1}, ph:{value:1}, len:{value:3}, mouseW:GU.mouseW, figMul:GU.figMul, mouseN:GU.mouseN, aspect:GU.aspect};
-  const strands = new THREE.LineSegments(geo, new THREE.ShaderMaterial({
-    uniforms:SU, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-    vertexShader:HOVER+`attribute float seed; uniform vec3 center; uniform float pw,ph,len,time,vel; uniform vec2 mouseW; varying float vA;
-      void main(){
-        float u=position.x, v=position.y, s=position.z;
-        float x0=(u-.5)*pw, y0=(v-.5)*ph;
-        float letter=(floor(clamp(u,0.,.999)*3.)+.5)/3.;
-        float bx=(letter-.5)*pw + sin(time*.2+letter*4.)*.2;
-        float sway=sin(s*3.+time*.35+seed*6.28)*.35*s + sin(s*8.+time*.9+seed*30.)*.06*s;
-        float x=mix(x0, bx+(x0-bx)*.55, smoothstep(0.,.75,s)) + sway*(1.+seed) + vel*s*s*1.2;
-        x+=sin(s*2.2+time*.18+seed*12.)*s*s*pw*.06;                                 // al final los hilos se mezclan entre sí
-        vec3 p=center+vec3(x, y0-s*len, (seed-.5)*.6*s);
-        vec2 dd=p.xy-mouseW; float dl=length(dd);
-        p.xy+=dd/max(dl,1e-3)*smoothstep(1.3,0.,dl)*.5*smoothstep(0.,.3,s);
-        vec4 cp=projectionMatrix*viewMatrix*vec4(p,1.);
-        float f=hoverBlur(cp, seed+s, time);
-        vA=pow(1.-s,.85)*(.45+.55*seed)*smoothstep(0.,.04,s)*(1.-f*.55);   // la estela dura más y se apaga de a poco
-        gl_Position=cp;
-      }`,
-    fragmentShader:`uniform float figMul; varying float vA; void main(){ gl_FragColor=vec4(vec3(vA*.07*min(figMul,1.6)),1.); }`
-  }));
-  strands.frustumCulled = false; strands.renderOrder = 29; scene.add(strands);
-  // partículas: titilan dentro de las letras y, en la mitad de abajo, se desprenden y caen con los hilos
-  const NP = touch ? 3500 : 7500, hu = [], pr = [];
-  for(let tries=0; hu.length < NP*2 && tries < 600000; tries++){
-    const px = x0 + Math.random()*bw, py = y0 + Math.random()*bh;
-    if(d[((py|0)*CW+(px|0))*4] < 128) continue;
-    const v = (y1-py)/bh; if(Math.random() > .3 + .7*(1-v)) continue;
-    hu.push((px-x0)/bw, v); pr.push(Math.random());
-  }
-  const pg = new THREE.BufferGeometry();
-  pg.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(hu.length/2*3), 3));
-  pg.setAttribute('hu', new THREE.Float32BufferAttribute(hu, 2)); pg.setAttribute('rnd', new THREE.Float32BufferAttribute(pr, 1));
-  const dust = new THREE.Points(pg, new THREE.ShaderMaterial({
-    uniforms:{...SU, pr:{value:renderer.getPixelRatio()}}, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-    vertexShader:HOVER+`attribute vec2 hu; attribute float rnd; uniform vec3 center; uniform float pw,ph,len,time,vel,pr; uniform vec2 mouseW; varying float vA;
-      void main(){
-        float u=hu.x, v=hu.y;
-        float lower=smoothstep(.7,.0,v);
-        float fall=fract(time*(.025+.05*rnd)+rnd*7.)*lower;               // cae y vuelve a empezar
-        vec3 p=center+vec3((u-.5)*pw, (v-.5)*ph, 0.);
-        p.y-=fall*len*.6;
-        p.x+=sin(time*.5+rnd*30.)*.02 + sin(fall*6.+rnd*9.)*fall*.3 + vel*fall*fall;
-        p.z+=(rnd-.5)*.4*fall;
-        vec2 dd=p.xy-mouseW; float dl=length(dd); p.xy+=dd/max(dl,1e-3)*smoothstep(1.4,0.,dl)*.45;
-        vec4 cp=projectionMatrix*viewMatrix*vec4(p,1.);
-        float f=hoverBlur(cp, rnd, time);
-        vA=(.35+.65*rnd)*(.55+.45*sin(time*2.3+rnd*50.))*pow(1.-fall,1.5)*(1.-f*.4);
-        gl_PointSize=(1.+rnd*1.3+f*2.)*pr;
-        gl_Position=cp;
-      }`,
-    fragmentShader:`uniform float figMul; varying float vA; void main(){ float d=length(gl_PointCoord-.5); gl_FragColor=vec4(vec3(vA*.6*min(figMul,1.6)*smoothstep(.5,.12,d)),1.); }`
-  }));
-  dust.frustumCulled = false; dust.renderOrder = 31; scene.add(dust);
+  // sin hilos ni partículas debajo del PVR (v2.1.0)
+  const SU = {center:{value:new V3()}, pw:{value:1}, ph:{value:1}, len:{value:3}};
+  const strands = {visible:false}, dust = {visible:false};
   const R0 = {}, heroEl = el.closest('.hero');
   items.push({update(){
     rectW(el, R0); letters.visible = strands.visible = dust.visible = R0.vis; if(!R0.vis) return;
@@ -1195,7 +1133,7 @@ const fogMat = (seed, dens, tint, depth)=> new THREE.ShaderMaterial({
 });
 
 // ================= collage de fondo: imágenes propias generadas con herramientas/fondos.py =================
-const COLLAGE = ['01','05','03','07','02','06','08','04','09','10'].map(n=>'img/fondo/fondo-'+n+'.jpg');
+const COLLAGE = ['01','05','03','07','02','08','04','09','10'].map(n=>'img/fondo/fondo-'+n+'.jpg');
 const collage = [];
 COLLAGE.forEach((name, i)=>{
   const U = {map:{value:null}, time:GU.time, vel:GU.vel, inv:{value:0}, seed:{value:Math.random()*10}, alpha:{value:.11}, figMul:GU.figMul};
@@ -1342,7 +1280,7 @@ document.querySelectorAll('[data-gl]').forEach(el=>{
 const titleReady = makeTitle(document.querySelector('[data-gl="title"]'));
 
 function resize(){
-  const w = innerWidth, h = innerHeight;
+  const w = Math.max(1, innerWidth), h = Math.max(1, innerHeight);   // nunca cero: si la ventana arranca sin tamaño, las cuentas no dan NaN
   renderer.setSize(w, h, false); composer.setSize(w, h); glEl.style.height = h + 'px';
   const pr = renderer.getPixelRatio();
   GU.res.value.set(Math.floor(w*pr), Math.floor(h*pr)); finalPass.uniforms.res.value.copy(GU.res.value);

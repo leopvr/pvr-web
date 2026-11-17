@@ -26,10 +26,10 @@ Leé esto antes de tocar nada. Hablá siempre en español rioplatense.
   - X = versión de la web (2 = la actual en 3D) · Y = actualizaciones grandes · Z = cambios chicos o arreglos de bugs.
 - En cada subida, actualizar el `?v=X.Y.Z` de los CSS/JS propios (`dimension.*`, `secundaria.css`, `escena-secundaria.js`) en las tres páginas: así nadie ve archivos viejos guardados en su navegador.
 - Los lienzos 3D (`#gl`, `#art`) no son fijos: se mueven con la página y en cada cuadro se reubican donde está la pantalla, así las imágenes van al mismo ritmo que el texto.
-- Última subida: **pvrstudio v2.0.2** (arreglo: la cadena de los carteles ya no queda en el medio de la pantalla). Antes: v2.0.1 (carteles y fotos fijos, cadenas quietas, imágenes al ritmo del texto, rendimiento) y v2.0.0 (presskit V2 + Mezcla y mastering + Clases + paso entre páginas).
+- Última subida: **pvrstudio v2.1.0** (PVR de la portada quieto y traslúcido al 55%, sin hilos ni partículas; menos espacio entre secciones; collage sin las pirámides fondo-06). Antes: v2.0.2 (arreglo de la cadena en el medio), v2.0.1 (carteles y fotos fijos, rendimiento) y v2.0.0 (V2 + Mastering + Clases).
 
 ## Estructura
-- `index.html` — el presskit (V2: escena 3D en WebGL con three.js, cadenas, niebla, PVR en hilos), con CSS y JS adentro. Secciones en orden:
+- `index.html` — el presskit (V2: escena 3D en WebGL con three.js, cadenas, niebla; PVR quieto y traslúcido desde v2.1.0), con CSS y JS adentro. Secciones en orden:
   `#inicio` (portada con video) → Manifiesto (video de fondo) → `#sobre` → `#en-la-pista` (4 videos cortos) → `#sonido` (filas corridas INTENSO / TEXTURAS / CATARSIS…) → `#trayectoria` → `#musica` (lanzamientos) → `#sets` (Black Room Radio destacado + ASFIXIA + Droxcast) → `#docencia` → `#rider` (dibujo SVG propio de 3 CDJ + mixer) → `#booking`.
 - Páginas secundarias (en el menú como "02 Mastering" y "03 Clases"; en la portada solo links discretos y el bloque "Además" antes del pie):
   - `mastering.html` — Mezcla y mastering: Master / Master por stems / Mezcla + master, lanzamientos masterizados (lista `MASTERS` en el script; tapas en `img/masters/`: Henri Piper, Inerte, Loza Industrial; para sumar uno usar la skill `soundcloud-tapa` en `.claude/skills/`) y formulario a contact.leopvr@gmail.com por FormSubmit.
